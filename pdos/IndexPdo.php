@@ -47,7 +47,9 @@ from Product as P
 inner join (select sellerIdx, sellerName, profileImageUrl from Seller) S on P.sellerIdx = S.sellerIdx
 left join (select P.productIdx, group_concat(productImageUrl) as productImageUrl
 from Product as P
-left join (select productIdx, productImageUrl as productImageUrl from ProductImage) PI on PI.productIdx = P.productIdx
+left join (SELECT * FROM ( SELECT productIdx, productImageUrl , ROW_NUMBER()
+    OVER(PARTITION BY productIdx ORDER BY createdAt DESC) ITEM_RN FROM ProductImage ) TEST WHERE ITEM_RN = 1
+) PI on PI.productIdx = P.productIdx
 group by P.productIdx) PI on PI.productIdx = P.productIdx
 inner join (SELECT productIdx, reviewIdx, reviewerIdx, reviewerName, reviewerProfileImageUrl, reviewcontent, isReviewImageAttached, rate
 
@@ -59,7 +61,7 @@ SELECT reviewIdx, Product.productIdx
 , ROW_NUMBER() OVER(PARTITION BY Product.productIdx ORDER BY reviewIdx DESC) as RowIdx
 
 From Product
-inner join(
+left join(
 select reviewIdx as reviewIdx, productIdx, U.userIdx as reviewerIdx, userName as reviewerName,
        profileImageUrl as reviewerProfileImageUrl, content as reviewcontent,
         case when imageUrl is null then 0 else 1 end as isReviewImageAttached, rate
@@ -71,7 +73,7 @@ order by reviewIdx desc) R on R.productIdx = Product.productIdx
 
 WHERE RowIdx = 1) R on P.productIdx = R.productIdx
 left join (select productIdx, userIdx from StarredProduct where userIdx = ?) Star on P.productIdx = Star.productIdx
-order by productIdx desc;
+order by productIdx desc
 ";
 
     $st = $pdo->prepare($query);
