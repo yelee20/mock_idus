@@ -22,7 +22,7 @@ function getUsers()
 function getUserDetail($userIdx)
 {
     $pdo = pdoSqlConnect();
-    $query = "select * from Users where userIdx = ?;";
+    $query = "select * from User where userIdx = ?;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);
@@ -71,6 +71,7 @@ order by reviewIdx desc) R on R.productIdx = Product.productIdx
 
 WHERE RowIdx = 1) R on P.productIdx = R.productIdx
 left join (select productIdx, userIdx from StarredProduct where userIdx = ?) Star on P.productIdx = Star.productIdx
+order by productIdx desc;
 ";
 
     $st = $pdo->prepare($query);
@@ -81,7 +82,7 @@ left join (select productIdx, userIdx from StarredProduct where userIdx = ?) Sta
     $st = null;
     $pdo = null;
 
-    return $res[0];
+    return $res;
 }
 
 
@@ -89,7 +90,7 @@ left join (select productIdx, userIdx from StarredProduct where userIdx = ?) Sta
 function isValidUserIdx($userIdx)
 {
     $pdo = pdoSqlConnect();
-    $query = "select EXISTS(select * from Users where userIdx = ?) exist;";
+    $query = "select EXISTS(select * from User where userIdx = ?) exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);

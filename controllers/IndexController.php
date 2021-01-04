@@ -36,6 +36,32 @@ try {
             $res->message = "테스트 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
+
+        /*
+        * API No. 4
+        * API Name : 홈 화면 조회 API
+        * 마지막 수정 날짜 : 19.04.29
+        */
+        case "getHome":
+            http_response_code(200);
+
+            $userIdx = $vars["userIdx"];
+
+            if(!isValidUserIdx($userIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2000;
+                $res->message = "유효하지 않은 userIdx입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            $res->result = getHome($userIdx);
+            $res->isSuccess = TRUE;
+            $res->code = 1000;
+            $res->message = "홈 화면 조회 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
         /*
          * API No. 5
          * API Name : 테스트 Path Variable API
