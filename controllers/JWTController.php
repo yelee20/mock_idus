@@ -9,6 +9,7 @@ $req = json_decode(file_get_contents("php://input"));
 try {
     addAccessLogs($accessLogs, $req);
     switch ($handler) {
+
         /*
          * API No. 1
          * API Name : JWT 생성 테스트 API (로그인)
@@ -66,6 +67,9 @@ try {
 
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
+
+
+
 
 
     }

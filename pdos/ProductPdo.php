@@ -5,7 +5,7 @@ function getHome($userIdx)
 {
     $pdo = pdoSqlConnect();
     $query = "select P.productIdx, P.productName, productImageUrl, S.sellerIdx, S.sellerName, S.profileImageUrl as sellerProfileImageUrl,
-       reviewerIdx, reviewerName, reviewerProfileImageUrl, reviewcontent, isReviewImageAttached, rate,
+       reviewerIdx, reviewerName, reviewcontent, isReviewImageAttached, rate,
        case when Star.userIdx is null then 0 else 1 end as isStarredByMe
 from Product as P
 inner join (select sellerIdx, sellerName, profileImageUrl from Seller) S on P.sellerIdx = S.sellerIdx

@@ -9,9 +9,6 @@ $req = json_decode(file_get_contents("php://input"));
 try {
     addAccessLogs($accessLogs, $req);
     switch ($handler) {
-        case "product":
-            echo "API Server";
-            break;
         case "ACCESS_LOGS":
             //            header('content-type text/html charset=utf-8');
             header('Content-Type: text/html; charset=UTF-8');

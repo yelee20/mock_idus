@@ -25,11 +25,14 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/', ['IndexController', 'index']);
     $r->addRoute('GET', '/users', ['IndexController', 'getUsers']);
     $r->addRoute('GET', '/users/{userIdx}', ['IndexController', 'getUserDetail']);
-    $r->addRoute('POST', '/user', ['IndexController', 'createUser']); // 비밀번호 해싱 예시 추가
+    $r->addRoute('POST', '/users', ['IndexController', 'createUser']); // 비밀번호 해싱 예시 추가
+    $r->addRoute('POST', '/test', ['IndexController', 'createTest']); // 비밀번호 해싱 예시 추가
+    $r->addRoute('PATCH', '/users/{userIdx}', ['IndexController', 'updateUserInfo']);
 
     /* ******************   Product   ****************** */
     $r->addRoute('GET', '/home/{userIdx}', ['ProductController', 'getHome']);
     $r->addRoute('GET', '/products/{userIdx}/{productIdx}', ['ProductController', 'getProductDetail']);
+
 
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
