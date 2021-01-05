@@ -2,6 +2,7 @@
 
 require './pdos/DatabasePdo.php';
 require './pdos/IndexPdo.php';
+require './pdos/ProductPdo.php';
 require './pdos/JWTPdo.php';
 require './vendor/autoload.php';
 
@@ -24,9 +25,11 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/', ['IndexController', 'index']);
     $r->addRoute('GET', '/users', ['IndexController', 'getUsers']);
     $r->addRoute('GET', '/users/{userIdx}', ['IndexController', 'getUserDetail']);
-    $r->addRoute('GET', '/home/{userIdx}', ['IndexController', 'getHome']);
     $r->addRoute('POST', '/user', ['IndexController', 'createUser']); // 비밀번호 해싱 예시 추가
 
+    /* ******************   Product   ****************** */
+    $r->addRoute('GET', '/home/{userIdx}', ['ProductController', 'getHome']);
+    $r->addRoute('GET', '/products/{userIdx}/{productIdx}', ['ProductController', 'getProductDetail']);
 
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
@@ -85,30 +88,30 @@ switch ($routeInfo[0]) {
                 $vars = $routeInfo[2];
                 require './controllers/JWTController.php';
                 break;
-            /*case 'EventController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/EventController.php';
-                break;
+//            case 'EventController':
+//                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
+//                require './controllers/EventController.php';
+//                break;
             case 'ProductController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
                 require './controllers/ProductController.php';
                 break;
-            case 'SearchController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/SearchController.php';
-                break;
-            case 'ReviewController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/ReviewController.php';
-                break;
-            case 'ElementController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/ElementController.php';
-                break;
-            case 'AskFAQController':
-                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-                require './controllers/AskFAQController.php';
-                break;*/
+//            case 'SearchController':
+//                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
+//                require './controllers/SearchController.php';
+//                break;
+//            case 'ReviewController':
+//                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
+//                require './controllers/ReviewController.php';
+//                break;
+//            case 'ElementController':
+//                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
+//                require './controllers/ElementController.php';
+//                break;
+//            case 'AskFAQController':
+//                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
+//                require './controllers/AskFAQController.php';
+//                break;
         }
 
         break;
