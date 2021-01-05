@@ -88,7 +88,7 @@ where O.productIdx = ?";
     $st = null;
     $pdo = null;
 
-    return $res;
+    return $res[0];
 }
 
 
