@@ -23,11 +23,12 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     /* ******************   User, Seller   ****************** */
     $r->addRoute('GET', '/', ['IndexController', 'index']);
+    $r->addRoute('POST', '/login', ['IndexController', 'login']); // 로그인 API
+    $r->addRoute('GET', '/login/jwt', ['IndexController', 'loginByJwt']); // 자동 로그인 API
+    $r->addRoute('POST', '/users', ['IndexController', 'createUser']); // 회원가입 API
     $r->addRoute('GET', '/users', ['IndexController', 'getUsers']);
     $r->addRoute('GET', '/users/{userIdx}', ['IndexController', 'getUserDetail']);
-    $r->addRoute('POST', '/users', ['IndexController', 'createUser']); // 비밀번호 해싱 예시 추가
-    $r->addRoute('POST', '/test', ['IndexController', 'createTest']); // 비밀번호 해싱 예시 추가
-    $r->addRoute('PATCH', '/users/{userIdx}', ['IndexController', 'updateUserInfo']);
+    $r->addRoute('PATCH', '/users', ['IndexController', 'updateUserInfo']); // 사용자 정보 수정 API
 
     /* ******************   Product   ****************** */
     $r->addRoute('GET', '/products/home', ['ProductController', 'getHome']); // 홈 화면 조회

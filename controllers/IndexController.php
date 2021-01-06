@@ -51,7 +51,20 @@ try {
             $email = isset($req->email) ? $req->email : null;
             $gender = isset($req->gender) ? $req->gender : null;
             $birthday = isset($req->birthday) ? $req->birthday : null;
-            $userIdx = $vars["userIdx"];
+
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            // JWT 유효성 검사
+            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
+                $res->isSuccess = FALSE;
+                $res->code = 2013;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
 
             // 사용자 인덱스 Validation
             if(is_null($userIdx)) {
@@ -163,7 +176,7 @@ try {
                 break;
             }
 
-            updateUserInfo($userName, $profileImageUrl, $mobileNo, $email, $gender, $birthday);
+            updateUserInfo($userName, $profileImageUrl, $mobileNo, $email, $gender, $birthday, $userIdx);
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "사용자 정보 수정 성공";
@@ -188,6 +201,40 @@ try {
                 $res->isSuccess = FALSE;
                 $res->code = 2001;
                 $res->message = "access_token이 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            $curl_facebook2 = curl_init(); // start curl
+            $url = "https://graph.facebook.com/me?fields=id,name&access_token=".$access_token; // set url and parameters
+            curl_setopt($curl_facebook2, CURLOPT_URL, $url); // set the url variable to curl
+            curl_setopt($curl_facebook2, CURLOPT_RETURNTRANSFER, true); // return output as string
+            $output2 = curl_exec($curl_facebook2); // execute curl call
+            curl_close($curl_facebook2); // close curl
+
+            // String to JSON Array
+            $output = json_decode($output2,True);
+
+            if (!isset($output["id"])){
+                $res->isSuccess = FALSE;
+                $res->code = 2002;
+                $res->message = "유효하지 않은 access-token입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            $facebookID = $output["id"];
+            if (isset(getUserIdxByFacebookID($facebookID)[0])){
+                $userIdx = getUserIdxByFacebookID($facebookID)[0];
+
+                $userIdx = $userIdx["userIdx"];
+                $jwt = getJWT($userIdx, JWT_SECRET_KEY); // function.php 에 구현
+                $result = new stdClass();
+                $result = array('jwt'=>$jwt,'userIdx'=>$userIdx);
+                $res -> result = $result;
+                $res->isSuccess = TRUE;
+                $res->code = 1000;
+                $res->message = "로그인 성공";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
@@ -243,7 +290,7 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
-            $userIdx = createUser($userName, $mobileNo, $email);
+            $userIdx = createUser($userName, $mobileNo, $email, $facebookID);
             createReferenceCode($email,$mobileNo);
 
 
@@ -273,18 +320,103 @@ try {
 //            break;
 
 
-
-            case "createTest":
+        /*
+        * API No. 6
+        * API Name : 로그인 API
+        * 마지막 수정 날짜 : 20.01.06
+        */
+        case "login":
             http_response_code(200);
 
-            $userName = $req->userName;
-            $pwd = $req->pwd;
-            $res->result = createTest($userName,$pwd);
+            $access_token = $req->access_token;
+            $curl_facebook2 = curl_init(); // start curl
+            $url = "https://graph.facebook.com/me?fields=id,name&access_token=".$access_token; // set url and parameters
+            curl_setopt($curl_facebook2, CURLOPT_URL, $url); // set the url variable to curl
+            curl_setopt($curl_facebook2, CURLOPT_RETURNTRANSFER, true); // return output as string
+            $output2 = curl_exec($curl_facebook2); // execute curl call
+            curl_close($curl_facebook2); // close curl
+
+            // String to JSON Array
+            $output = json_decode($output2,True);
+
+            if (!isset($output["id"])){
+                $res->isSuccess = FALSE;
+                $res->code = 2001;
+                $res->message = "유효하지 않은 access-token입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            $facebookID = $output["id"];
+
+            if (!isset(getUserIdxByFacebookID($facebookID)[0])){
+                $res->isSuccess = FALSE;
+                $res->code = 2002;
+                $res->message = "유효하지 않은 아이디입니다. 회원가입을 해주세요.";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            $userIdx = getUserIdxByFacebookID($facebookID)[0];
+
+            $userIdx = $userIdx["userIdx"];
+            $jwt = getJWT($userIdx, JWT_SECRET_KEY); // function.php 에 구현
+            $result = new stdClass();
+            $result = array('jwt'=>$jwt,'userIdx'=>$userIdx);
+            $res -> result = $result;
             $res->isSuccess = TRUE;
-            $res->code = 100;
-            $res->message = "테스트 성공";
+            $res->code = 1000;
+            $res->message = "로그인 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
+
+
+        /*
+     * API No. 1
+    * API Name : 자동 로그인 API
+    * 마지막 수정 날짜 : 21.01.06
+    */
+        case "loginByJwt":
+            http_response_code(200);
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            // JWT 유효성 검사
+            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
+                $res->isSuccess = FALSE;
+                $res->code = 2000;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
+
+            // 사용자 아이디 Validation
+            if(is_null($userIdx)) {
+                $res->isSuccess = False;
+                $res->code = 2001;
+                $res->message = "userIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(!isValidUserIdx($userIdx)) {
+                $res->isSuccess = False;
+                $res->code = 2002;
+                $res->message = "유효하지 않은 userIdx입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            $result = new stdClass();
+            $result = array('userIdx'=>$userIdx);
+            $res->result = $result;
+            $res->isSuccess = TRUE;
+            $res->code = 1000;
+            $res->message = "자동 로그인 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
     }
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);

@@ -123,14 +123,31 @@ function isValidProductIdx($productIdx)
     return $res[0]['exist'];
 }
 
-
-function createUser($userName, $mobileNo, $email)
+// GET userIdx by facebookID
+function getUserIdxByFacebookID($facebookID)
 {
     $pdo = pdoSqlConnect();
-    $query = "INSERT INTO User (userName, mobileNo, email) VALUES (?,?,?);";
+    $query = "select userIdx from User where facebookID = ? and isDeleted = 'N';";
 
     $st = $pdo->prepare($query);
-    $st->execute([$userName, $mobileNo, $email]);
+    $st->execute([$facebookID]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
+
+
+function createUser($userName, $mobileNo, $email, $facebookID)
+{
+    $pdo = pdoSqlConnect();
+    $query = "INSERT INTO User (userName, mobileNo, email, facebookID) VALUES (?,?,?,?);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userName, $mobileNo, $email, $facebookID]);
     $userIdx = $pdo->lastInsertId();
 
     $st = null;
