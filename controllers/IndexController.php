@@ -1,6 +1,6 @@
 <?php
 require 'function.php';
-use Facebook\Facebook;
+//use Facebook\Facebook;
 
 const JWT_SECRET_KEY = "TEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEYTEST_KEY";
 
@@ -163,7 +163,7 @@ try {
                 break;
             }
 
-            updateUserInfo($userName, $profileImageUrl, $mobileNo, $email, $gender, $birthday, $userIdx);
+            updateUserInfo($userName, $profileImageUrl, $mobileNo, $email, $gender, $birthday);
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "사용자 정보 수정 성공";
@@ -172,67 +172,88 @@ try {
 
         /*
          * API No. 6
-         * API Name : 테스트 Body & Insert API
+         * API Name : 회원가입 API
          * 마지막 수정 날짜 : 19.04.29
          */
         case "createUser":
             http_response_code(200);
+            $access_token = isset($req->access_token) ? $req->access_token : null;
+            $userName = isset($req->userName) ? $req->userName : null;
+            $email = isset($req->email) ? $req->email : null;
+            $mobileNo = isset($req->mobileNo) ? $req->mobileNo : null;
+            $referenceCode = isset($req->referenceCode) ? $req->referenceCode : null;
 
-            // 사용자로부터 Facebook 로그인 이후 Access Token을 받습니다.
-//            $access_token = $_SERVER["ACCESS_TOKEN"];
-            $access_token = $req -> access_token;
-//            $email = $req->email;
-//            $mobileNo = $req->mobileNo;
-            if ($access_token == "" or is_null($access_token)){
+            // 엑세스 토큰 Validation
+            if (is_null($access_token)){
                 $res->isSuccess = FALSE;
-                $res->code = 2000;
-                $res->message = "access-token이 null입니다";
+                $res->code = 2001;
+                $res->message = "access_token이 null입니다";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
-            require_once __DIR__. '/../vendor/facebook/graph-sdk/src/Facebook/autoload.php';
-            $fb = new Facebook\Facebook([
-                'app_id' => '{app-id}',
-                'app_secret' => '{app-secret}',
-                'default_graph_version' => 'v2.10',
-            ]);
 
-            try {
-                // Returns a `Facebook\Response` object
-                $response = $fb->get('/me?fields=id,name', $access_token);
-            } catch(Facebook\Exception\ResponseException $e) {
-                echo 'Graph returned an error: ' . $e->getMessage();
-                exit;
-            } catch(Facebook\Exception\SDKException $e) {
-                echo 'Facebook SDK returned an error: ' . $e->getMessage();
-                exit;
+            // 이메일 Validation
+            if (is_null($userName)){
+                $res->isSuccess = FALSE;
+                $res->code = 2003;
+                $res->message = "userName이 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
             }
 
-            $user = $response->getGraphUser();
+            // 이메일 Validation
+            if (is_null($email)){
+                $res->isSuccess = FALSE;
+                $res->code = 2004;
+                $res->message = "email이 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
 
-            echo 'Name: ' . $user['name'];
+            if (isValidEmail($email)){
+                $res->isSuccess = FALSE;
+                $res->code = 2005;
+                $res->message = "이미 존재하는 email입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
 
-//            if (isValidEmail($email)){
-//                $res->isSuccess = FALSE;
-//                $res->code = 2000;
-//                $res->message = "이미 존재하는 email입니다";
-//                echo json_encode($res, JSON_NUMERIC_CHECK);
-//                break;
-//            }
-//
-//            if (isValidMobileNo($mobileNo)){
-//                $res->isSuccess = FALSE;
-//                $res->code = 2000;
-//                $res->message = "이미 존재하는 mobileNo입니다";
-//                echo json_encode($res, JSON_NUMERIC_CHECK);
-//                break;
-//            }
+            // 전화번호 Validation
+            if (is_null($mobileNo)){
+                $res->isSuccess = FALSE;
+                $res->code = 2006;
+                $res->message = "mobileNo가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if (isValidMobileNo($mobileNo)){
+                $res->isSuccess = FALSE;
+                $res->code = 2007;
+                $res->message = "이미 존재하는 mobileNo입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            // 추천인 코드 Validation
+            if (!is_null($referenceCode) and isValidReferenceCode($referenceCode)){
+                $res->isSuccess = FALSE;
+                $res->code = 2008;
+                $res->message = "유효하지 않은 referenceCode입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            $userIdx = createUser($userName, $mobileNo, $email);
+            createReferenceCode($email,$mobileNo);
 
 
-            #$res->result = createUser($email);
+            $jwt = getJWT($userIdx, JWT_SECRET_KEY); // function.php 에 구현
+            $result = new stdClass();
+            $result = array('jwt'=>$jwt,'userIdx'=>$userIdx);
+            $res->result = $result;
             $res->isSuccess = TRUE;
-            $res->code = 100;
-            $res->message = "테스트 성공";
+            $res->code = 1000;
+            $res->message = "회원가입 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 

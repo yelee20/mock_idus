@@ -89,6 +89,23 @@ function isValidMobileNo($mobileNo)
     return $res[0]['exist'];
 }
 
+// Check Validation of ReferenceCode
+function isValidReferenceCode($referenceCode)
+{
+    $pdo = pdoSqlConnect();
+    $query = "select EXISTS(select * from User where referenceCode = ? and isDeleted = 'N') exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$referenceCode]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0]['exist'];
+}
+
 // Check Validation of ProductIdx
 function isValidProductIdx($productIdx)
 {
@@ -107,13 +124,31 @@ function isValidProductIdx($productIdx)
 }
 
 
-function createUser($email)
+function createUser($userName, $mobileNo, $email)
 {
     $pdo = pdoSqlConnect();
-    $query = "select * from User where userIdx = 1;";
+    $query = "INSERT INTO User (userName, mobileNo, email) VALUES (?,?,?);";
 
     $st = $pdo->prepare($query);
-    $st->execute([$email]);
+    $st->execute([$userName, $mobileNo, $email]);
+    $userIdx = $pdo->lastInsertId();
+
+    $st = null;
+    $pdo = null;
+
+    return $userIdx;
+
+}
+
+function createReferenceCode($email, $mobileNo)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE User
+                        SET referenceCode = ?
+                        WHERE mobileNo = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$email,$mobileNo]);
 
     $st = null;
     $pdo = null;

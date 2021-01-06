@@ -30,9 +30,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('PATCH', '/users/{userIdx}', ['IndexController', 'updateUserInfo']);
 
     /* ******************   Product   ****************** */
-    $r->addRoute('GET', '/home/{userIdx}', ['ProductController', 'getHome']);
-    $r->addRoute('GET', '/products/{userIdx}/{productIdx}', ['ProductController', 'getProductDetail']);
-
+    $r->addRoute('GET', '/products/home', ['ProductController', 'getHome']); // 홈 화면 조회
+    $r->addRoute('GET', '/products/{productIdx}', ['ProductController', 'getProductDetail']); // 작품 상세 페이지 조회회
 
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');

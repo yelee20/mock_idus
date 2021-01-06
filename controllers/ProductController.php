@@ -29,8 +29,19 @@ try {
         case "getHome":
             http_response_code(200);
 
-            $userIdx = $vars["userIdx"];
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
 
+            // JWT 유효성 검사
+            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
+                $res->isSuccess = FALSE;
+                $res->code = 2001;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
             if(!isValidUserIdx($userIdx)){
                 $res->isSuccess = FALSE;
                 $res->code = 2000;
@@ -54,8 +65,21 @@ try {
         case "getProductDetail":
             http_response_code(200);
 
-            $userIdx = $vars["userIdx"];
+//            $userIdx = $vars["userIdx"];
             $productIdx = $vars["productIdx"];
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            // JWT 유효성 검사
+            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
+                $res->isSuccess = FALSE;
+                $res->code = 404;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
 
             if(!isValidUserIdx($userIdx)){
                 $res->isSuccess = FALSE;
