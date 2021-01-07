@@ -4,7 +4,7 @@
 function getUsers()
 {
     $pdo = pdoSqlConnect();
-    $query = "select * from User;";
+    $query = "select * from UserInfo;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
@@ -22,7 +22,7 @@ function getUsers()
 function getUserDetail($userIdx)
 {
     $pdo = pdoSqlConnect();
-    $query = "select * from User where userIdx = ?;";
+    $query = "select * from UserInfo where userIdx = ?;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);
@@ -40,7 +40,7 @@ function getUserDetail($userIdx)
 function isValidUserIdx($userIdx)
 {
     $pdo = pdoSqlConnect();
-    $query = "select EXISTS(select * from User where userIdx = ? and status = 'N') exist;";
+    $query = "select EXISTS(select * from UserInfo where userIdx = ? and status = 'N') exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);
@@ -58,7 +58,7 @@ function isValidUserIdx($userIdx)
 function isValidEmail($email)
 {
     $pdo = pdoSqlConnect();
-    $query = "select EXISTS(select * from User where email = ? and status = 'N') exist;";
+    $query = "select EXISTS(select * from UserInfo where email = ? and status = 'N') exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$email]);
@@ -76,7 +76,7 @@ function isValidEmail($email)
 function isValidMobileNo($mobileNo)
 {
     $pdo = pdoSqlConnect();
-    $query = "select EXISTS(select * from User where mobileNo = ? and status = 'N') exist;";
+    $query = "select EXISTS(select * from UserInfo where mobileNo = ? and status = 'N') exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$mobileNo]);
@@ -93,7 +93,7 @@ function isValidMobileNo($mobileNo)
 function isValidReferenceCode($referenceCode)
 {
     $pdo = pdoSqlConnect();
-    $query = "select EXISTS(select * from User where referenceCode = ? and status = 'N') exist;";
+    $query = "select EXISTS(select * from UserInfo where referenceCode = ? and status = 'N') exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$referenceCode]);
@@ -127,7 +127,7 @@ function isValidProductIdx($productIdx)
 function getUserIdxByFacebookID($facebookID)
 {
     $pdo = pdoSqlConnect();
-    $query = "select userIdx from User where facebookID = ? and status = 'N';";
+    $query = "select userIdx from UserInfo where facebookID = ? and status = 'N';";
 
     $st = $pdo->prepare($query);
     $st->execute([$facebookID]);
@@ -144,7 +144,7 @@ function getUserIdxByFacebookID($facebookID)
 function createUser($userName, $mobileNo, $email, $facebookID)
 {
     $pdo = pdoSqlConnect();
-    $query = "INSERT INTO User (userName, mobileNo, email, facebookID) VALUES (?,?,?,?);";
+    $query = "INSERT INTO UserInfo (userName, mobileNo, email, facebookID) VALUES (?,?,?,?);";
 
     $st = $pdo->prepare($query);
     $st->execute([$userName, $mobileNo, $email, $facebookID]);
@@ -160,7 +160,7 @@ function createUser($userName, $mobileNo, $email, $facebookID)
 function createReferenceCode($email, $mobileNo)
 {
     $pdo = pdoSqlConnect();
-    $query = "UPDATE User
+    $query = "UPDATE UserInfo
                         SET referenceCode = ?
                         WHERE mobileNo = ?;";
 
@@ -176,7 +176,7 @@ function createReferenceCode($email, $mobileNo)
 function createTest($userName,$pwd)
 {
     $pdo = pdoSqlConnect();
-    $query = "insert into test (userName, password) values (?,?);;";
+    $query = "insert into test (userName, password) values (?,?);";
 
     $st = $pdo->prepare($query);
     $st->execute([$userName,$pwd]);
@@ -190,7 +190,7 @@ function createTest($userName,$pwd)
 function updateUserInfo($userName, $profileImageUrl, $mobileNo, $email, $gender, $birthday, $userIdx)
 {
     $pdo = pdoSqlConnect();
-    $query = "UPDATE User
+    $query = "UPDATE UserInfo
                         SET userName = ?,
                             profileImageUrl  = ?,
                             mobileNo  = ?,
@@ -210,7 +210,7 @@ function updateUserInfo($userName, $profileImageUrl, $mobileNo, $email, $gender,
 function isDuplicateEmail($userIdx, $email)
 {
     $pdo = pdoSqlConnect();
-    $query = "select exists(select * from User where userIdx != ? and email = ? and status = 'N') as Exist;";
+    $query = "select exists(select * from UserInfo where userIdx != ? and email = ? and status = 'N') as Exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx, $email]);
@@ -226,7 +226,7 @@ function isDuplicateEmail($userIdx, $email)
 function isDuplicateMobileNo($userIdx, $mobileNo)
 {
     $pdo = pdoSqlConnect();
-    $query = "select exists(select * from User where userIdx != ? and mobileNo = ? and status = 'N') as Exist;";
+    $query = "select exists(select * from UserInfo where userIdx != ? and mobileNo = ? and status = 'N') as Exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx, $mobileNo]);

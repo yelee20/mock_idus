@@ -30,7 +30,7 @@ select reviewIdx as reviewIdx, productIdx, U.userIdx as reviewerIdx, userName as
        profileImageUrl as reviewerProfileImageUrl, content as reviewcontent,
         case when imageUrl is null then 0 else 1 end as isReviewImageAttached, rate
 from Review
-inner join (select userIdx, userName, profileImageUrl from User) U on U.userIdx = Review.userIdx
+inner join (select userIdx, userName, profileImageUrl from UserInfo) U on U.userIdx = Review.userIdx
 order by reviewIdx desc) R on R.productIdx = Product.productIdx
 
 ) AS t
