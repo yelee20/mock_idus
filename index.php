@@ -4,6 +4,7 @@ require './pdos/DatabasePdo.php';
 require './pdos/IndexPdo.php';
 require './pdos/ProductPdo.php';
 require './pdos/OrderPdo.php';
+require './pdos/SearchPdo.php';
 require './pdos/JWTPdo.php';
 require './vendor/autoload.php';
 
@@ -24,21 +25,24 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     /* ******************   User, Seller   ****************** */
     $r->addRoute('GET', '/', ['IndexController', 'index']);
-    $r->addRoute('POST', '/login', ['IndexController', 'login']); // 로그인 API
-    $r->addRoute('GET', '/login/jwt', ['IndexController', 'loginByJwt']); // 자동 로그인 API
-    $r->addRoute('POST', '/users', ['IndexController', 'createUser']); // 회원가입 API
+    $r->addRoute('POST', '/login', ['IndexController', 'login']); // 로그인
+    $r->addRoute('GET', '/login/jwt', ['IndexController', 'loginByJwt']); // 자동 로그인
+    $r->addRoute('POST', '/users', ['IndexController', 'createUser']); // 회원가입
     $r->addRoute('GET', '/users', ['IndexController', 'getUsers']);
     $r->addRoute('GET', '/users/{userIdx}', ['IndexController', 'getUserDetail']);
-    $r->addRoute('PATCH', '/users', ['IndexController', 'updateUserInfo']); // 사용자 정보 수정 API
+    $r->addRoute('PATCH', '/users', ['IndexController', 'updateUserInfo']); // 사용자 정보 수정
 
     /* ******************   Product   ****************** */
     $r->addRoute('GET', '/products/home', ['ProductController', 'getHome']); // 홈 화면 조회
-    $r->addRoute('GET', '/products/{productIdx}', ['ProductController', 'getProductDetail']); // 작품 상세 페이지 조회회
+    $r->addRoute('GET', '/products/{productIdx}', ['ProductController', 'getProductDetail']); // 작품 상세 페이지 조회
 
     /* ******************   Order   ****************** */
-    $r->addRoute('PATCH', '/addresses/{addressIdx}', ['OrderController', 'updateAddressInfo']); // 배송지 정보 수정 API
-    $r->addRoute('POST', '/orders/{productIdx}', ['OrderController', 'createOrder']); // 배송지 정보 수정 API
+    $r->addRoute('PATCH', '/addresses/{addressIdx}', ['OrderController', 'updateAddressInfo']); // 배송지 정보 수정
+    $r->addRoute('POST', '/orders/{productIdx}', ['OrderController', 'createOrder']); // 배송지 정보 수정
+    $r->addRoute('GET', '/orders/{productIdx}', ['OrderController', 'getOrderDetail']); // 구매 고객 및 작품 정보 조회
 
+    /* ******************   Search   ****************** */
+    $r->addRoute('GET', '/searches/top', ['SearchController', 'getLatestSearch']); // 최근 검색어 조회
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
 //    // {id} must be a number (\d+)
@@ -103,6 +107,10 @@ switch ($routeInfo[0]) {
             case 'OrderController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
                 require './controllers/OrderController.php';
+                break;
+            case 'SearchController':
+                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
+                require './controllers/SearchController.php';
                 break;
 
 //            case 'SearchController':

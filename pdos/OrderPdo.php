@@ -45,7 +45,7 @@ function updateAddressInfo($receiverName, $mobileNo, $address, $userIdx, $addres
     $pdo = null;
 }
 
-// GET VIP 회원인지 확인
+// GET 작품 정보 가져오기
 function getProductInfoByProductIdx($productIdx){
     $pdo = pdoSqlConnect();
     $query = "select price, discount, deliveryFee, freeDeliveryCondition, quantity from Product where productIdx = ? and status = 'N';";
@@ -61,11 +61,10 @@ function getProductInfoByProductIdx($productIdx){
     return $res;
 }
 
-// GET 작품 정보 가져오기
+// GET VIP 회원인지 확인
 function isVIPUser($userIdx){
     $pdo = pdoSqlConnect();
-    $query = "select exists(select * from UserInfo where userIdx = ? and 
-                isVIP = 1 and status = 'N') as Exist;";
+    $query = "select exists() as Exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);
@@ -88,4 +87,22 @@ function createOrder($userIdx, $productIdx, $quantity, $receiverName, $mobileNo,
     $st->execute([$userIdx, $productIdx, $quantity, $receiverName, $mobileNo, $address, $requestMessage, $finalPrice]);
     $st = null;
     $pdo = null;
+}
+
+// GET 구매 고객 및 작품 정보 조회
+function getOrderDetail($userIdx, $productIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select userName, concat('xn#mobileNo',mobileNo) as userMobileNo, productIdx, productName
+from UserInfo, Product
+where userIdx = ? and productIdx =?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx, $productIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0];
 }

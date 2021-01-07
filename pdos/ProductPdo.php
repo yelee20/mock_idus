@@ -108,6 +108,7 @@ function updateProductQuantity($quantity, $productIdx)
 }
 
 
+
 // CREATE
 //    function addMaintenance($message){
 //        $pdo = pdoSqlConnect();
