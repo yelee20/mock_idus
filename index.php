@@ -3,6 +3,7 @@
 require './pdos/DatabasePdo.php';
 require './pdos/IndexPdo.php';
 require './pdos/ProductPdo.php';
+require './pdos/OrderPdo.php';
 require './pdos/JWTPdo.php';
 require './vendor/autoload.php';
 
@@ -91,14 +92,15 @@ switch ($routeInfo[0]) {
                 $vars = $routeInfo[2];
                 require './controllers/JWTController.php';
                 break;
-//            case 'EventController':
-//                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
-//                require './controllers/EventController.php';
-//                break;
             case 'ProductController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
                 require './controllers/ProductController.php';
                 break;
+            case 'OrderController':
+                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
+                require './controllers/OrderController.php';
+                break;
+
 //            case 'SearchController':
 //                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
 //                require './controllers/SearchController.php';

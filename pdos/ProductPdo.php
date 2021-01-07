@@ -36,7 +36,8 @@ order by reviewIdx desc) R on R.productIdx = Product.productIdx
 ) AS t
 
 WHERE RowIdx = 1) R on P.productIdx = R.productIdx
-left join (select productIdx, userIdx from StarredProduct where userIdx = ? and isDeleted = 'N') Star on P.productIdx = Star.productIdx
+left join (select productIdx, userIdx from StarredProduct where userIdx = ? and status = 'N') Star on P.productIdx = Star.productIdx
+where P.status = 'N' 
 order by productIdx desc
 ";
 
@@ -67,15 +68,15 @@ inner join (select productIdx, group_concat(productImageUrl) as productImageUrl
             from ProductImage group by productIdx) PI on PI.productIdx = P.productIdx
 inner join (select sellerIdx, sellerName, profileImageUrl as sellerProfileImageUrl
             from Seller) S on S.sellerIdx = P.sellerIdx
-left join (select productIdx, userIdx from StarredProduct where userIdx = ? and isDeleted = 'N')
+left join (select productIdx, userIdx from StarredProduct where userIdx = ? and status = 'N')
            Star on P.productIdx = Star.productIdx
 left join (select productIdx, count(userIdx) as starredNum from StarredProduct
-            where isDeleted = 'N' group by productIdx) SN on SN.productIdx = P.productIdx
+            where status = 'N' group by productIdx) SN on SN.productIdx = P.productIdx
 left join (select productIdx, count(userIdx) as orderNum from OrderLog
-            where isDeleted = 'N' and (isRefunded = 'N' or isRefunded = 'P')
+            where status = 'N' and (isRefunded = 'N' or isRefunded = 'P')
               and (isChanged = 'N' or isRefunded = 'P') group by productIdx) O on O.productIdx = P.productIdx
 left join (select productIdx, avg(rate) as rate, count(reviewIdx) as reviewNum from Review
-            where isDeleted = 'N' group by productIdx) R on R.productIdx = P.productIdx
+            where status = 'N' group by productIdx) R on R.productIdx = P.productIdx
 left join (select productIdx, count(userIdx) as viewNum from ViewLog
             group by productIdx) V on V.productIdx = P.productIdx
 where O.productIdx = ?";

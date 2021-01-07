@@ -233,13 +233,13 @@ try {
                 $result = array('jwt'=>$jwt,'userIdx'=>$userIdx);
                 $res -> result = $result;
                 $res->isSuccess = TRUE;
-                $res->code = 1000;
+                $res->code = 1001;
                 $res->message = "로그인 성공";
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
 
-            // 이메일 Validation
+            // 이름 Validation
             if (is_null($userName)){
                 $res->isSuccess = FALSE;
                 $res->code = 2003;
