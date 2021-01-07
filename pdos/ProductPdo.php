@@ -92,6 +92,20 @@ where O.productIdx = ?";
     return $res[0];
 }
 
+// UPDATE 작품 수량 수정
+function updateProductQuantity($quantity, $productIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE Product
+                        SET quantity = ?,
+                            updatedAt = CURRENT_TIMESTAMP
+                        WHERE productIdx = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$quantity, $productIdx]);
+    $st = null;
+    $pdo = null;
+}
 
 
 // CREATE

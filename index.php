@@ -37,6 +37,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     /* ******************   Order   ****************** */
     $r->addRoute('PATCH', '/addresses/{addressIdx}', ['OrderController', 'updateAddressInfo']); // 배송지 정보 수정 API
+    $r->addRoute('POST', '/orders/{productIdx}', ['OrderController', 'createOrder']); // 배송지 정보 수정 API
 
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');

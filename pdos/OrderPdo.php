@@ -44,3 +44,48 @@ function updateAddressInfo($receiverName, $mobileNo, $address, $userIdx, $addres
     $st = null;
     $pdo = null;
 }
+
+// GET VIP 회원인지 확인
+function getProductInfoByProductIdx($productIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select price, discount, deliveryFee, freeDeliveryCondition, quantity from Product where productIdx = ? and status = 'N';";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$productIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
+
+// GET 작품 정보 가져오기
+function isVIPUser($userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from UserInfo where userIdx = ? and 
+                isVIP = 1 and status = 'N') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
+// CREATE 작품 구매
+function createOrder($userIdx, $productIdx, $quantity, $receiverName, $mobileNo, $address, $requestMessage, $finalPrice)
+{
+    $pdo = pdoSqlConnect();
+    $query = "insert into OrderLog (userIdx, productIdx, quantity, receiverName, mobileNo, address, requestMessage, price) 
+                values (?,?,?,?,?,?,?,?);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx, $productIdx, $quantity, $receiverName, $mobileNo, $address, $requestMessage, $finalPrice]);
+    $st = null;
+    $pdo = null;
+}
