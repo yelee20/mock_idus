@@ -48,9 +48,8 @@ try {
                 break;
             }
 
-
-
-            $res->result = searchKeyword($keyword);
+            createSearchLog($userIdx, $keyword);
+            $res->result = searchKeyword($userIdx, $keyword);
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "작품 검색 성공";

@@ -264,7 +264,35 @@ function isDuplicateMobileNo($userIdx, $mobileNo)
     return intval($res[0]['Exist']);
 }
 
+// DELETE 회원 탈퇴
+function deleteUser($userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE UserInfo
+                        SET status = 'D'
+                        WHERE userIdx = ?";
 
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+    $st = null;
+    $pdo = null;
+}
+
+// Delete 로그아웃
+function logout($userIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from UserInfo where userIdx = ? and status = 'N') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+
+}
 
 //function createUser($email)
 //{

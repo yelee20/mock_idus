@@ -26,11 +26,13 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     /* ******************   User, Seller   ****************** */
     $r->addRoute('GET', '/', ['IndexController', 'index']);
     $r->addRoute('POST', '/login', ['IndexController', 'login']); // 로그인
+    $r->addRoute('POST', '/logout', ['IndexController', 'logout']); // 로그아웃
     $r->addRoute('GET', '/login/jwt', ['IndexController', 'loginByJwt']); // 자동 로그인
-    $r->addRoute('POST', '/users', ['IndexController', 'createUser']); // 회원가입
+    $r->addRoute('POST', '/users', ['IndexController', 'createUser']); // 회원 가입
     $r->addRoute('GET', '/users', ['IndexController', 'getUserInfo']); // 사용자 정보 조회
     $r->addRoute('GET', '/users/{userIdx}', ['IndexController', 'getUserDetail']);
     $r->addRoute('PATCH', '/users', ['IndexController', 'updateUserInfo']); // 사용자 정보 수정
+    $r->addRoute('DELETE', '/users', ['IndexController', 'deleteUser']); // 회원 탈퇴
 
     /* ******************   Product   ****************** */
     $r->addRoute('GET', '/products/home', ['ProductController', 'getHome']); // 홈 화면 조회

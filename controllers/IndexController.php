@@ -348,21 +348,6 @@ try {
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 
-//        case "createUser":
-//            http_response_code(200);
-//
-//            // Packet의 Body에서 데이터를 파싱합니다.
-//            $userID = $req->userID;
-//            $pwd_hash = password_hash($req->pwd, PASSWORD_DEFAULT); // Password Hash
-//            $name = $req->name;
-//
-//            $res->result = createUser($userID, $pwd_hash, $name);
-//            $res->isSuccess = TRUE;
-//            $res->code = 100;
-//            $res->message = "테스트 성공";
-//            echo json_encode($res, JSON_NUMERIC_CHECK);
-//            break;
-
 
         /*
         * API No. 6
@@ -458,6 +443,95 @@ try {
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "자동 로그인 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+        /*
+        * API No. 3
+        * API Name : 로그아웃 API
+        * 마지막 수정 날짜 : 21.01.09
+        */
+        case "logout":
+            http_response_code(200);
+
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            // JWT Validation
+            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
+                $res->isSuccess = FALSE;
+                $res->code = 2000;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
+
+            // 사용자 인덱스 Validation
+            if(is_null($userIdx)) {
+                $res->isSuccess = False;
+                $res->code = 2001;
+                $res->message = "userIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            if (!isValidUserIdx($userIdx)){
+                $res->isSuccess = False;
+                $res->code = 2002;
+                $res->message = "유효하지 않은 userIdx 입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            logout($userIdx);
+            $res->isSuccess = TRUE;
+            $res->code = 1000;
+            $res->message = "로그아웃 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
+        /*
+         * API No. 3
+         * API Name : 회원 탈퇴 API
+         * 마지막 수정 날짜 : 21.01.09
+         */
+        case "deleteUser":
+            http_response_code(200);
+
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            // JWT Validation
+            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
+                $res->isSuccess = FALSE;
+                $res->code = 2000;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
+
+            // 사용자 인덱스 Validation
+            if(is_null($userIdx)) {
+                $res->isSuccess = False;
+                $res->code = 2001;
+                $res->message = "userIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+            if (!isValidUserIdx($userIdx)){
+                $res->isSuccess = False;
+                $res->code = 2002;
+                $res->message = "유효하지 않은 userIdx 입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            deleteUser($userIdx);
+            $res->isSuccess = TRUE;
+            $res->code = 1000;
+            $res->message = "회원 탈퇴 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 
