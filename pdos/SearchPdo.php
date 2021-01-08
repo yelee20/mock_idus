@@ -1,4 +1,20 @@
 <?php
+// GET 작품 검색
+function searchKeyword($keyword){
+    $pdo = pdoSqlConnect();
+    $query = ";";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$keyword]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0];
+}
+
 // GET 최근 검색어 조회
 function getLatestSearch($userIdx){
     $pdo = pdoSqlConnect();
@@ -38,7 +54,7 @@ group by keyword) S;";
     return $res;
 }
 
-// GET 검색어가 있는지 확인
+// GET 24시간이내 검색기록이 있는지 확인
 function searchedIn24Hrs($userIdx){
     $pdo = pdoSqlConnect();
     $query = "select exists(select userIdx

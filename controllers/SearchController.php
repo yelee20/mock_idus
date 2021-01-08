@@ -19,10 +19,47 @@ try {
             header('Content-Type: text/html; charset=UTF-8');
             getLogs("./logs/errors.log");
             break;
+        /*
+        * API No. 4
+        * API Name : 작품 검색 API
+        * 마지막 수정 날짜 : 21.01.08
+        */
+        case "searchKeyword":
+            http_response_code(200);
+            $keyword = $_GET["keyword"];
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            // JWT 유효성 검사
+            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
+                $res->isSuccess = FALSE;
+                $res->code = 2001;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
+            if(!isValidUserIdx($userIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2000;
+                $res->message = "유효하지 않은 userIdx입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+
+
+            $res->result = searchKeyword($keyword);
+            $res->isSuccess = TRUE;
+            $res->code = 1000;
+            $res->message = "작품 검색 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
 
         /*
         * API No. 4
-        * API Name : 최근 검색어 조회 API
+        * API Name : 최근 검색어 및 실시간 인기검색어 조회 API
         * 마지막 수정 날짜 : 20.01.07
         */
         case "getLatestSearch":

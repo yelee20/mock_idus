@@ -28,13 +28,44 @@ try {
          * API Name : 테스트 API
          * 마지막 수정 날짜 : 19.04.29
          */
-        case "getUsers":
+        case "getUserInfo":
             http_response_code(200);
 
-            $res->result = getUsers();
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+
+            // JWT 유효성 검사
+            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
+                $res->isSuccess = FALSE;
+                $res->code = 2000;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
+
+            // 사용자 인덱스 Validation
+            if(is_null($userIdx)) {
+                $res->isSuccess = False;
+                $res->code = 2001;
+                $res->message = "userIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if (!isValidUserIdx($userIdx)){
+                $res->isSuccess = False;
+                $res->code = 2002;
+                $res->message = "유효하지 않은 userIdx 입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            $res->result = getUserInfo($userIdx);
             $res->isSuccess = TRUE;
-            $res->code = 100;
-            $res->message = "테스트 성공";
+            $res->code = 1000;
+            $res->message = "사용자 정보 조회 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 

@@ -28,7 +28,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/login', ['IndexController', 'login']); // 로그인
     $r->addRoute('GET', '/login/jwt', ['IndexController', 'loginByJwt']); // 자동 로그인
     $r->addRoute('POST', '/users', ['IndexController', 'createUser']); // 회원가입
-    $r->addRoute('GET', '/users', ['IndexController', 'getUsers']);
+    $r->addRoute('GET', '/users', ['IndexController', 'getUserInfo']);
     $r->addRoute('GET', '/users/{userIdx}', ['IndexController', 'getUserDetail']);
     $r->addRoute('PATCH', '/users', ['IndexController', 'updateUserInfo']); // 사용자 정보 수정
 
@@ -43,6 +43,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     /* ******************   Search   ****************** */
     $r->addRoute('GET', '/searches/top', ['SearchController', 'getLatestSearch']); // 최근 검색어 조회
+    $r->addRoute('GET', '/products', ['SearchController', 'searchKeyword']); // 작품 검색
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
 //    // {id} must be a number (\d+)

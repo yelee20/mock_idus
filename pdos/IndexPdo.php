@@ -1,21 +1,27 @@
 <?php
 
 //READ
-function getUsers()
+function getUserInfo($userIdx)
 {
     $pdo = pdoSqlConnect();
-    $query = "select * from UserInfo;";
+    $query = "select userName, profileImageUrl, email, class, ifnull(couponNum,0) as couponNum, point
+from UserInfo
+left join (select userIdx, count(couponIdx) as couponNum
+from Coupon
+where userIdx = $userIdx
+group by userIdx) C on C.userIdx = UserInfo.userIdx
+where UserInfo.userIdx = $userIdx;";
 
     $st = $pdo->prepare($query);
     //    $st->execute([$param,$param]);
-    $st->execute([]);
+    $st->execute([$userIdx]);
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 
     $st = null;
     $pdo = null;
 
-    return $res;
+    return $res[0];
 }
 
 //READ
