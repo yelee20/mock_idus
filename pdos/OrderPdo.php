@@ -89,22 +89,5 @@ function createOrder($userIdx, $productIdx, $quantity, $receiverName, $mobileNo,
     $pdo = null;
 }
 
-// GET 구매 고객 및 작품 정보 조회
-function getOrderDetail($userIdx, $productIdx){
-    $pdo = pdoSqlConnect();
-    $query = "select userName, concat('xn#mobileNo',mobileNo) as userMobileNo, productIdx, productName
-from UserInfo, Product
-where userIdx = ? and productIdx =?;";
-
-    $st = $pdo->prepare($query);
-    $st->execute([$userIdx, $productIdx]);
-    $st->setFetchMode(PDO::FETCH_ASSOC);
-    $res = $st->fetchAll();
-
-    $st = null;
-    $pdo = null;
-
-    return $res[0];
-}
 
 

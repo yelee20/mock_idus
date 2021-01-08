@@ -122,7 +122,45 @@ function getProductImageUrl($productIdx)
     return $res;
 }
 
+// GET 작품 옵션 조회
+function getOptionDetail($productIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select group_concat(optionDetail separator '/') as optionDetail
+from ProductOption
+where productIdx = ?
+group by productIdx, optionIdx;";
 
+    $st = $pdo->prepare($query);
+    $st->execute([$productIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
+
+// GET 작품 옵션 조회
+function getOption($productIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select group_concat(optionName separator '/') as optionName
+from(
+select DISTINCT  productIdx, optionIdx, optionName
+from ProductOption
+where productIdx = ?) O
+group by productIdx;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$productIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
 
 // CREATE
 //    function addMaintenance($message){
