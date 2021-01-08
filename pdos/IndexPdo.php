@@ -4,7 +4,7 @@
 function getUserInfo($userIdx)
 {
     $pdo = pdoSqlConnect();
-    $query = "select userName, profileImageUrl, email, concat('xn#mobileNo',mobileNo) as mobileNo, class, ifnull(couponNum,0) as couponNum, point
+    $query = "select userName, profileImageUrl, email, concat('xn#mobileNo',mobileNo) as mobileNo, class as userClass, ifnull(couponNum,0) as couponNum, point
 from UserInfo
 left join (select userIdx, count(couponIdx) as couponNum
 from Coupon
