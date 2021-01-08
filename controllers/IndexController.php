@@ -66,7 +66,8 @@ try {
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "사용자 정보 조회 성공";
-            echo json_encode($res, JSON_NUMERIC_CHECK);
+            $res = json_encode($res, JSON_NUMERIC_CHECK);
+            echo str_replace('xn#mobileNo','',$res);
             break;
 
         /*
