@@ -5,7 +5,7 @@ function pdoSqlConnect()
 {
     try {
         $DB_HOST = "idus-db.cpfnmnwcjvir.ap-northeast-2.rds.amazonaws.com";
-        $DB_NAME = "idus_prod";
+        $DB_NAME = "idus";
         $DB_USER = "sienna";
         $DB_PW = "iduseleventh11!";
         $pdo = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME", $DB_USER, $DB_PW);

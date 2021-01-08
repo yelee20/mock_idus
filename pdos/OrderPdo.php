@@ -106,3 +106,5 @@ where userIdx = ? and productIdx =?;";
 
     return $res[0];
 }
+
+

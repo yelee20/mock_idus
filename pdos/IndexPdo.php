@@ -25,22 +25,42 @@ where UserInfo.userIdx = $userIdx;";
 }
 
 //READ
-function getUserDetail($userIdx)
+function getAddressInfo($userIdx)
 {
     $pdo = pdoSqlConnect();
-    $query = "select * from UserInfo where userIdx = ?;";
+    $query = "select addressIdx, receiverName, concat('xn#mobileNo',mobileNo) as receiverMobileNo, address as receiverAddress
+from Address
+where userIdx = $userIdx;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);
-    //    $st->execute();
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 
     $st = null;
     $pdo = null;
 
-    return $res[0];
+    return $res;
 }
+
+
+//READ
+function doesAddressExist($userIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "select EXISTS(select * from Address where userIdx = ? and status = 'N') exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0]['exist'];
+}
+
 
 //READ
 function isValidUserIdx($userIdx)

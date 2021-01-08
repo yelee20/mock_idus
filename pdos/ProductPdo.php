@@ -57,15 +57,13 @@ function getProductDetail($userIdx,$productIdx)
 {
     $pdo = pdoSqlConnect();
     $query = "
-select P.productIdx, productImageUrl, productName, P.sellerIdx, S.sellerName, S.sellerProfileImageUrl,
+select P.productIdx, productName, P.sellerIdx, S.sellerName, S.sellerProfileImageUrl,
        price as originalPrice, discount, format(price*(100-discount)/100,0) as finalPrice, deliveryFee,
        freeDeliveryCondition, startDeliveryAfter, quantity, productInfo, category, productionPolicy, refundPolicy, format(price*(100-discount)/10000,0) as points,
        ifnull(rate,0) as rate, ifnull(reviewNum,0) as reviewNum, ifnull(viewNum,0) as viewNum, ifnull(orderNum,0) as orderNum, ifnull(starredNum,0) as starredNum,
        ifnull(Star.userIdx,0) as isStarredByMe
 
 from Product as P
-inner join (select productIdx, group_concat(productImageUrl) as productImageUrl
-            from ProductImage group by productIdx) PI on PI.productIdx = P.productIdx
 inner join (select sellerIdx, sellerName, profileImageUrl as sellerProfileImageUrl
             from Seller) S on S.sellerIdx = P.sellerIdx
 left join (select productIdx, userIdx from StarredProduct where userIdx = ? and status = 'N')
@@ -105,6 +103,23 @@ function updateProductQuantity($quantity, $productIdx)
     $st->execute([$quantity, $productIdx]);
     $st = null;
     $pdo = null;
+}
+
+//READ 홈 화면 조회
+function getProductImageUrl($productIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "select productImageUrl as imageUrl from ProductImage where productIdx = ?";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$productIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
 }
 
 

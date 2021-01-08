@@ -95,8 +95,10 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
+            $productDetail = getProductDetail($userIdx,$productIdx);
+            $productDetail['productImageUrl'] = getProductImageUrl($productIdx);
 
-            $res->result = getProductDetail($userIdx,$productIdx);
+            $res->result = $productDetail;
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "작품 상세 페이지 조회 성공";

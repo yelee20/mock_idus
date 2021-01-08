@@ -28,7 +28,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/login', ['IndexController', 'login']); // 로그인
     $r->addRoute('GET', '/login/jwt', ['IndexController', 'loginByJwt']); // 자동 로그인
     $r->addRoute('POST', '/users', ['IndexController', 'createUser']); // 회원가입
-    $r->addRoute('GET', '/users', ['IndexController', 'getUserInfo']);
+    $r->addRoute('GET', '/users', ['IndexController', 'getUserInfo']); // 사용자 정보 조회
     $r->addRoute('GET', '/users/{userIdx}', ['IndexController', 'getUserDetail']);
     $r->addRoute('PATCH', '/users', ['IndexController', 'updateUserInfo']); // 사용자 정보 수정
 

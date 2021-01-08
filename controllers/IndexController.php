@@ -62,7 +62,19 @@ try {
                 break;
             }
 
-            $res->result = getUserInfo($userIdx);
+            if (!doesAddressExist($userIdx)){
+                $res->result = getUserInfo($userIdx);
+                $res->isSuccess = TRUE;
+                $res->code = 1000;
+                $res->message = "사용자 정보 조회 성공";
+                $res = json_encode($res, JSON_NUMERIC_CHECK);
+                echo str_replace('xn#mobileNo','',$res);
+                break;
+            }
+
+            $userInfo = getUserInfo($userIdx);
+            $userInfo['address']=getAddressInfo($userIdx);
+            $res->result=$userInfo;
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "사용자 정보 조회 성공";
