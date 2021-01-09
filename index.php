@@ -6,6 +6,7 @@ require './pdos/ProductPdo.php';
 require './pdos/OrderPdo.php';
 require './pdos/SearchPdo.php';
 require './pdos/SellerPdo.php';
+require './pdos/ReviewPdo.php';
 require './pdos/JWTPdo.php';
 require './vendor/autoload.php';
 
@@ -34,6 +35,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/users/{userIdx}', ['IndexController', 'getUserDetail']);
     $r->addRoute('PATCH', '/users', ['IndexController', 'updateUserInfo']); // 사용자 정보 수정
     $r->addRoute('DELETE', '/users', ['IndexController', 'deleteUser']); // 회원 탈퇴
+    $r->addRoute('GET', '/test', ['IndexController', 'test']); // 회원 탈퇴
 
     /* ******************   Product   ****************** */
     $r->addRoute('GET', '/products/home', ['ProductController', 'getHome']); // 홈 화면 조회
@@ -47,7 +49,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     /* ******************   Order   ****************** */
     $r->addRoute('PATCH', '/addresses/{addressIdx}', ['OrderController', 'updateAddressInfo']); // 배송지 정보 수정
     $r->addRoute('POST', '/orders/{productIdx}', ['OrderController', 'createOrder']); // 배송지 정보 수정
-    $r->addRoute('POST', '/test/{productIdx}', ['OrderController', 'createTest']); // 테스트
+
+    /* ******************   Review   ****************** */
+    $r->addRoute('POST', '/reviews/{orderIdx}/review', ['ReviewController', 'createReview']); // 후기 등록
 
     /* ******************   Search   ****************** */
     $r->addRoute('GET', '/searches/top', ['SearchController', 'getLatestSearch']); // 최근 검색어 조회
@@ -124,6 +128,10 @@ switch ($routeInfo[0]) {
             case 'SellerController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
                 require './controllers/SellerController.php';
+                break;
+            case 'ReviewController':
+                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
+                require './controllers/ReviewController.php';
                 break;
 
 //            case 'SearchController':

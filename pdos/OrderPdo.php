@@ -16,6 +16,22 @@ function isValidAddressIdx($userIdx, $addressIdx){
     return intval($res[0]['Exist']);
 }
 
+function isValidOrderIdx($orderIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from OrderLog where
+                orderIdx = ? and deliveryStatus = 2 and isRefunded = 'N' 
+                and isChanged = 'N' and status = 'N') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$orderIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
 // CREATE 배송지 정보 추가
 function createAddressInfo($userIdx, $addressIdx, $receiverName, $mobileNo, $address)
 {
