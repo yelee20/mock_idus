@@ -42,6 +42,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     /* ******************   Order   ****************** */
     $r->addRoute('PATCH', '/addresses/{addressIdx}', ['OrderController', 'updateAddressInfo']); // 배송지 정보 수정
     $r->addRoute('POST', '/orders/{productIdx}', ['OrderController', 'createOrder']); // 배송지 정보 수정
+    $r->addRoute('POST', '/test/{productIdx}', ['OrderController', 'createTest']); // 테스트
 
     /* ******************   Search   ****************** */
     $r->addRoute('GET', '/searches/top', ['SearchController', 'getLatestSearch']); // 최근 검색어 조회

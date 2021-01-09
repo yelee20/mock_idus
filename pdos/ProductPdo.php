@@ -198,6 +198,26 @@ where productIdx = ?;";
 }
 
 // GET 작품 옵션 조회
+function getNumOfOption($productIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select count(productIdx) as numOfOptions
+from (select distinct productIdx, optionIdx
+from ProductOption
+where productIdx = ?) C
+group by productIdx;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$productIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0];
+}
+
+// GET 작품 옵션 조회
 function getNumOfOptions($productIdx, $optionIdx){
     $pdo = pdoSqlConnect();
     $query = "select count(detailedOptionIdx) as numOfOptions
@@ -215,6 +235,7 @@ group by optionIdx;";
 
     return $res[0];
 }
+
 // CREATE
 //    function addMaintenance($message){
 //        $pdo = pdoSqlConnect();

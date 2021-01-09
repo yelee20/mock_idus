@@ -148,6 +148,8 @@ try {
             $quantity = isset($req->quantity) ? $req->quantity : 1;
             $paymentMethod = isset($req->paymentMethod) ? $req->paymentMethod : 0;
             $supportSeller = isset($req->supportSeller) ? $req->supportSeller : 0;
+            $optionIdx = isset($req->optionIdx) ? $req->optionIdx : null;
+            $detailedOptionIdx = isset($req->detailedOptionIdx) ? $req->detailedOptionIdx : null;
 
             $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
 
@@ -267,7 +269,6 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
-
             $productInfo = getProductInfoByProductIdx($productIdx);
             $price = $productInfo[0]['price'];
             $discount = $productInfo[0]['discount'];
@@ -276,9 +277,52 @@ try {
             $availableQuantity = $productInfo[0]['quantity'];
 
             $finalPrice = $price*$quantity*(100-$discount)/100;
+            $finalOption = '';
+            // 옵션 Validation
+            if(!is_null($optionIdx)){
+                if (sizeof($optionIdx) != getNumOfOption($productIdx)['numOfOptions']){
+                    $res->isSuccess = FALSE;
+                    $res->code = 2015;
+                    $res->message = "선택된 option의 개수가 잘못되었습니다";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    break;
+                }
+                if (sizeof($optionIdx)!=sizeof($detailedOptionIdx)){
+                    $res->isSuccess = FALSE;
+                    $res->code = 2016;
+                    $res->message = "optionIdx와 detailedOptionIdx의 개수가 다릅니다";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    break;
+                }
+                for ($x=0; $x < sizeof($optionIdx); $x++){
+                    if (!isValidOptionIdx($productIdx,$optionIdx[$x])){
+                        $res->isSuccess = FALSE;
+                        $res->code = 2017;
+                        $res->message = "유효하지 않은 optionIdx입니다";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        break 2;
+                    }
+
+                    if (!isValidDetailedOptionIdx($productIdx,$optionIdx[$x],$detailedOptionIdx[$x])){
+                        $res->isSuccess = FALSE;
+                        $res->code = 2018;
+                        $res->message = "유효하지 않은 detailedOptionIdx입니다";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        break 2;
+                    }
+
+                    $optionInfo = getOptionInfoByIdx($productIdx, $optionIdx[$x], $detailedOptionIdx[$x])[0];
+                    $finalOption = $finalOption.$optionInfo['optionIdx'].'. '.$optionInfo['optionName'].': '.$optionInfo['optionDetail'].'/ ';
+
+                    if ($optionInfo['price']!=0){
+                        $finalPrice += $optionInfo['price'];
+                    }
+
+                }
+            }
 
             // 배송비 무료 조건 확인
-            if ($finalPrice < $freeDeliveryCondition){
+            if ($finalPrice < $freeDeliveryCondition and !isVIPUser($userIdx)){
                 $finalPrice += $deliveryFee;
             }
 
@@ -296,10 +340,6 @@ try {
                 break;
             }
 
-            // VIP 사용자
-            if (isVIPUser($userIdx)){
-                $finalPrice -= $deliveryFee;
-            }
             if ($availableQuantity!= -1){
                 if ($availableQuantity < $quantity){
                 $res->isSuccess = FALSE;
@@ -323,7 +363,7 @@ try {
                 $mobileNo = $mobileNo*2;
             }
 
-            createOrder($userIdx, $productIdx, $quantity, $receiverName, $mobileNo, $address, $requestMessage, $finalPrice);
+            createOrder($userIdx, $productIdx, $quantity, $receiverName, $mobileNo, $address, $requestMessage, $finalPrice, $finalOption);
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "작품 구매 성공";
@@ -385,6 +425,66 @@ try {
             $res = json_encode($res, JSON_NUMERIC_CHECK);
             echo str_replace('xn#mobileNo','',$res);
             break;
+
+
+        /*
+        * API No. 4
+        * API Name : 작품 구매 API
+        * 마지막 수정 날짜 : 20.01.07
+        */
+        case "createTest":
+            http_response_code(200);
+            $productIdx = $vars['productIdx'];
+            $optionIdx = isset($req->optionIdx) ? $req->optionIdx : null;
+            $detailedOptionIdx = isset($req->detailedOptionIdx) ? $req->detailedOptionIdx : null;
+            $finalPrice = 1000;
+            $finalOption = '';
+            // 옵션 Validation
+            if(!is_null($optionIdx)){
+                if (sizeof($optionIdx)!=sizeof($detailedOptionIdx)){
+                    $res->isSuccess = FALSE;
+                    $res->code = 2015;
+                    $res->message = "optionIdx와 detailedOptionIdx의 개수가 다릅니다";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    break;
+                }
+                for ($x=0; $x < sizeof($optionIdx); $x++){
+                    if (!isValidOptionIdx($productIdx,$optionIdx[$x])){
+                        $res->isSuccess = FALSE;
+                        $res->code = 2016;
+                        $res->message = "유효하지 않은 optionIdx입니다";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        break 2;
+                    }
+
+                    if (!isValidDetailedOptionIdx($productIdx,$optionIdx[$x],$detailedOptionIdx[$x])){
+                        $res->isSuccess = FALSE;
+                        $res->code = 2017;
+                        $res->message = "유효하지 않은 detailedOptionIdx입니다";
+                        echo json_encode($res, JSON_NUMERIC_CHECK);
+                        break 2;
+                    }
+
+                    $optionInfo = getOptionInfoByIdx($productIdx, $optionIdx[$x], $detailedOptionIdx[$x])[0];
+                    $finalOption = $finalOption.$optionInfo['optionIdx'].'. '.$optionInfo['optionName'].': '.$optionInfo['optionDetail'].'/ ';
+
+                    if ($optionInfo['price']!=0){
+                        $finalPrice += $optionInfo['price'];
+                    }
+
+                }
+            }
+
+
+
+            $res->result = $finalPrice;
+            $res->isSuccess = TRUE;
+            $res->code = 1000;
+            $res->message = "테스트 성공";
+            $res = json_encode($res, JSON_NUMERIC_CHECK);
+            echo str_replace('xn#mobileNo','',$res);
+            break;
+
 
     }
 } catch (\Exception $e) {
