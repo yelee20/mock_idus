@@ -143,10 +143,31 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
+
+
+            $option = getOption($productIdx);
+            if(sizeof($option) == 0){
+                $res->isSuccess = TRUE;
+                $res->code = 1001;
+                $res->message = "작품 옵션이 없습니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
             $optionDetail = getOptionDetail($productIdx);
-            $option = getOption($productIdx)[0];
-            for ($x =0; $x < sizeof($optionDetail); $x++){
-                $option['option'.$x] = $optionDetail[$x]['optionDetail'];
+
+            $tmp = [];
+            $y = 0;
+            $z = getNumOfOptions($productIdx,1)['numOfOptions'];
+            for($x = 0; $x < sizeof($option); $x++) {
+                for ($y = $y ;$y < $z; $y++) {
+                    array_push($tmp, $optionDetail[$y]);
+                    $option[$x]['option'] = $tmp;
+                }
+                if ($y == sizeof($optionDetail))
+                    break;
+                $z += getNumOfOptions($productIdx,$x+2)['numOfOptions'];
+                $tmp = [];
             }
 
             $res->result = $option;
