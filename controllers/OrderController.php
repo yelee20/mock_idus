@@ -279,8 +279,17 @@ try {
             $finalPrice = $price*$quantity*(100-$discount)/100;
             $finalOption = '';
             // 옵션 Validation
-            if(!is_null($optionIdx)){
-                if (sizeof($optionIdx) != getNumOfOption($productIdx)['numOfOptions']){
+            if(is_null($optionIdx)) {
+                if (getNumOfOption($productIdx)!=[]) {
+                    $res->isSuccess = FALSE;
+                    $res->code = 2015;
+                    $res->message = "선택된 option의 개수가 잘못되었습니다";
+                    echo json_encode($res, JSON_NUMERIC_CHECK);
+                    break;
+                }
+            }
+            else {
+                if (getNumOfOption($productIdx) == [] or sizeof($optionIdx) != getNumOfOption($productIdx)[0]['numOfOptions']){
                     $res->isSuccess = FALSE;
                     $res->code = 2015;
                     $res->message = "선택된 option의 개수가 잘못되었습니다";
@@ -368,121 +377,6 @@ try {
             $res->code = 1000;
             $res->message = "작품 구매 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
-            break;
-
-        /*
-         * API No. 4
-         * API Name : 구매 고객 및 작품 정보 조회 API
-         * 마지막 수정 날짜 : 20.01.08
-         */
-        case "getOrderDetail":
-            http_response_code(200);
-            $productIdx = $vars['productIdx'];
-
-            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
-
-            // JWT 유효성 검사
-            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
-                $res->isSuccess = FALSE;
-                $res->code = 2000;
-                $res->message = "유효하지 않은 토큰입니다";
-                echo json_encode($res, JSON_NUMERIC_CHECK);
-                addErrorLogs($errorLogs, $res, $req);
-                return;
-            }
-
-            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
-
-            // 사용자 인덱스 Validation
-            if(is_null($userIdx)){
-                $res->isSuccess = FALSE;
-                $res->code = 2001;
-                $res->message = "userIdx가 null입니다";
-                echo json_encode($res, JSON_NUMERIC_CHECK);
-                break;
-            }
-
-            if(!isValidUserIdx($userIdx)){
-                $res->isSuccess = FALSE;
-                $res->code = 2002;
-                $res->message = "유효하지 않은 userIdx입니다";
-                echo json_encode($res, JSON_NUMERIC_CHECK);
-                break;
-            }
-
-            if(!isValidProductIdx($productIdx)){
-                $res->isSuccess = FALSE;
-                $res->code = 2003;
-                $res->message = "유효하지 않은 productIdx입니다";
-                echo json_encode($res, JSON_NUMERIC_CHECK);
-                break;
-            }
-
-            $res->result = getOrderDetail($userIdx,$productIdx);
-            $res->isSuccess = TRUE;
-            $res->code = 1000;
-            $res->message = "구매 고객 및 작품 정보 조회 성공";
-            $res = json_encode($res, JSON_NUMERIC_CHECK);
-            echo str_replace('xn#mobileNo','',$res);
-            break;
-
-
-        /*
-        * API No. 4
-        * API Name : 작품 구매 API
-        * 마지막 수정 날짜 : 20.01.07
-        */
-        case "createTest":
-            http_response_code(200);
-            $productIdx = $vars['productIdx'];
-            $optionIdx = isset($req->optionIdx) ? $req->optionIdx : null;
-            $detailedOptionIdx = isset($req->detailedOptionIdx) ? $req->detailedOptionIdx : null;
-            $finalPrice = 1000;
-            $finalOption = '';
-            // 옵션 Validation
-            if(!is_null($optionIdx)){
-                if (sizeof($optionIdx)!=sizeof($detailedOptionIdx)){
-                    $res->isSuccess = FALSE;
-                    $res->code = 2015;
-                    $res->message = "optionIdx와 detailedOptionIdx의 개수가 다릅니다";
-                    echo json_encode($res, JSON_NUMERIC_CHECK);
-                    break;
-                }
-                for ($x=0; $x < sizeof($optionIdx); $x++){
-                    if (!isValidOptionIdx($productIdx,$optionIdx[$x])){
-                        $res->isSuccess = FALSE;
-                        $res->code = 2016;
-                        $res->message = "유효하지 않은 optionIdx입니다";
-                        echo json_encode($res, JSON_NUMERIC_CHECK);
-                        break 2;
-                    }
-
-                    if (!isValidDetailedOptionIdx($productIdx,$optionIdx[$x],$detailedOptionIdx[$x])){
-                        $res->isSuccess = FALSE;
-                        $res->code = 2017;
-                        $res->message = "유효하지 않은 detailedOptionIdx입니다";
-                        echo json_encode($res, JSON_NUMERIC_CHECK);
-                        break 2;
-                    }
-
-                    $optionInfo = getOptionInfoByIdx($productIdx, $optionIdx[$x], $detailedOptionIdx[$x])[0];
-                    $finalOption = $finalOption.$optionInfo['optionIdx'].'. '.$optionInfo['optionName'].': '.$optionInfo['optionDetail'].'/ ';
-
-                    if ($optionInfo['price']!=0){
-                        $finalPrice += $optionInfo['price'];
-                    }
-
-                }
-            }
-
-
-
-            $res->result = $finalPrice;
-            $res->isSuccess = TRUE;
-            $res->code = 1000;
-            $res->message = "테스트 성공";
-            $res = json_encode($res, JSON_NUMERIC_CHECK);
-            echo str_replace('xn#mobileNo','',$res);
             break;
 
 

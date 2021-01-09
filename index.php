@@ -5,6 +5,7 @@ require './pdos/IndexPdo.php';
 require './pdos/ProductPdo.php';
 require './pdos/OrderPdo.php';
 require './pdos/SearchPdo.php';
+require './pdos/SellerPdo.php';
 require './pdos/JWTPdo.php';
 require './vendor/autoload.php';
 
@@ -38,6 +39,10 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/products/home', ['ProductController', 'getHome']); // 홈 화면 조회
     $r->addRoute('GET', '/products/{productIdx}', ['ProductController', 'getProductDetail']); // 작품 상세 페이지 조회
     $r->addRoute('GET', '/products/options/{productIdx}', ['ProductController', 'getOption']); // 작품 옵션 조회
+    $r->addRoute('PATCH', '/products/starred/{productIdx}', ['ProductController', 'starProduct']); // 작품 즐겨찾기 등록
+
+    /* ******************   Seller   ****************** */
+    $r->addRoute('PATCH', '/sellers/favorite/{sellerIdx}', ['SellerController', 'likeSeller']); // 좋아하는 작가 등록
 
     /* ******************   Order   ****************** */
     $r->addRoute('PATCH', '/addresses/{addressIdx}', ['OrderController', 'updateAddressInfo']); // 배송지 정보 수정
@@ -115,6 +120,10 @@ switch ($routeInfo[0]) {
             case 'SearchController':
                 $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
                 require './controllers/SearchController.php';
+                break;
+            case 'SellerController':
+                $handler = $routeInfo[1][1]; $vars = $routeInfo[2];
+                require './controllers/SellerController.php';
                 break;
 
 //            case 'SearchController':

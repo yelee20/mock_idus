@@ -197,7 +197,7 @@ where productIdx = ?;";
     return $res;
 }
 
-// GET 작품 옵션 조회
+// GET 작품 옵션 개수
 function getNumOfOption($productIdx){
     $pdo = pdoSqlConnect();
     $query = "select count(productIdx) as numOfOptions
@@ -214,10 +214,10 @@ group by productIdx;";
     $st = null;
     $pdo = null;
 
-    return $res[0];
+    return $res;
 }
 
-// GET 작품 옵션 조회
+// GET 작품 옵션 선택지 개수
 function getNumOfOptions($productIdx, $optionIdx){
     $pdo = pdoSqlConnect();
     $query = "select count(detailedOptionIdx) as numOfOptions
@@ -234,6 +234,92 @@ group by optionIdx;";
     $pdo = null;
 
     return $res[0];
+}
+
+// CREATE 구경 기록 추가
+function createViewLog($userIdx,$productIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "insert into ViewLog (userIdx, productIdx) values (?,?);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx,$productIdx]);
+
+    $st = null;
+    $pdo = null;
+
+}
+
+// CREATE 작품 즐겨찾기 등록
+function starProduct($userIdx,$productIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "insert into StarredProduct (userIdx, productIdx) values (?,?);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx,$productIdx]);
+
+    $st = null;
+    $pdo = null;
+
+}
+
+// DELETE 작품 즐겨찾기 등록 해제
+function unstarProduct($userIdx, $productIdx){
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE StarredProduct SET status = 'D',
+            updatedAt = current_timestamp
+            where userIdx = ? and productIdx = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx,$productIdx]);
+    $st = null;
+    $pdo = null;
+}
+
+// 작품 즐겨찾기 되어있는지 확인
+function isStarredByMe($userIdx, $productIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from StarredProduct where userIdx = ? and 
+                productIdx = ? and status != 'D') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx,$productIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
+// 한번이라도 작품 즐겨찾기 한 기록이 있는지 확인
+function hasEverStarredByMe($userIdx, $postIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from StarredProduct where userIdx = ? and 
+                productIdx = ?) as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx,$postIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
+// 다시 작품 즐겨찾기 등록
+function starProductAgain($userIdx, $productIdx){
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE StarredProduct SET status = 'N',
+              updatedAt = current_timestamp 
+              where userIdx = ? and productIdx = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx,$productIdx]);
+    $st = null;
+    $pdo = null;
 }
 
 // CREATE
