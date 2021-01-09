@@ -94,7 +94,8 @@ try {
                 break;
             }
 
-            if(!is_float($rate)){
+            if($rate != 0 and $rate != 0.5 and $rate != 1 and $rate != 1.5 and $rate != 2 and $rate != 2.5 and
+                $rate != 3 and $rate != 3.5 and $rate != 4 and $rate != 4.5 and $rate != 5){
                 $res->isSuccess = FALSE;
                 $res->code = 2007;
                 $res->message = "잘못된 형식의 rate입니다";
