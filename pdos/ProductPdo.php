@@ -105,7 +105,7 @@ function updateProductQuantity($quantity, $productIdx)
     $pdo = null;
 }
 
-//READ 홈 화면 조회
+//READ
 function getProductImageUrl($productIdx)
 {
     $pdo = pdoSqlConnect();
@@ -122,45 +122,6 @@ function getProductImageUrl($productIdx)
     return $res;
 }
 
-//// GET 작품 옵션 조회
-//function getOptionDetail($productIdx){
-//    $pdo = pdoSqlConnect();
-//    $query = "select group_concat(optionDetail separator '/') as optionDetail
-//from ProductOption
-//where productIdx = ?
-//group by productIdx, optionIdx;";
-//
-//    $st = $pdo->prepare($query);
-//    $st->execute([$productIdx]);
-//    $st->setFetchMode(PDO::FETCH_ASSOC);
-//    $res = $st->fetchAll();
-//
-//    $st = null;
-//    $pdo = null;
-//
-//    return $res;
-//}
-//
-//// GET 작품 옵션 조회
-//function getOption($productIdx){
-//    $pdo = pdoSqlConnect();
-//    $query = "select group_concat(optionName separator '/') as optionName
-//from(
-//select DISTINCT  productIdx, optionIdx, optionName
-//from ProductOption
-//where productIdx = ?) O
-//group by productIdx;";
-//
-//    $st = $pdo->prepare($query);
-//    $st->execute([$productIdx]);
-//    $st->setFetchMode(PDO::FETCH_ASSOC);
-//    $res = $st->fetchAll();
-//
-//    $st = null;
-//    $pdo = null;
-//
-//    return $res;
-//}
 function getOptionDetail($productIdx){
     $pdo = pdoSqlConnect();
     $query = "select Distinct detailedOptionIdx, optionDetail, price
@@ -322,6 +283,40 @@ function starProductAgain($userIdx, $productIdx){
     $pdo = null;
 }
 
+
+//READ 실시간 후기 작품 목록
+function getLatestReview($userIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "select Product.productIdx,productImageUrl, productName, S.sellerIdx, S.sellerName,
+       ifnull(Star.userIdx,0) as isStarredByMe
+from Product
+left join (select P.productIdx, group_concat(productImageUrl) as productImageUrl
+from Product as P
+left join (SELECT * FROM ( SELECT productIdx, productImageUrl , ROW_NUMBER()
+    OVER(PARTITION BY productIdx ORDER BY createdAt DESC) ITEM_RN FROM ProductImage ) TEST WHERE ITEM_RN = 1
+) PI on PI.productIdx = P.productIdx
+group by P.productIdx) PI on PI.productIdx = Product.productIdx
+inner join(select sellerIdx, sellerName from Seller) S on S.sellerIdx = Product.productIdx
+left join (select productIdx, userIdx from StarredProduct where userIdx = ? and status = 'N')
+           Star on Product.productIdx = Star.productIdx
+inner join (select reviewIdx, R.orderIdx, OL.productIdx
+from Review as R
+inner join (select productIdx, orderIdx from OrderLog) OL on OL.orderIdx = R.orderIdx)
+    R on R.productIdx = Product.productIdx
+group by productIdx
+order by max(reviewIdx) desc;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
 // CREATE
 //    function addMaintenance($message){
 //        $pdo = pdoSqlConnect();

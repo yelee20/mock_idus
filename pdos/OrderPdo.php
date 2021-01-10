@@ -219,7 +219,7 @@ function deleteOrder($orderIdx)
 function isOrderedByMe($userIdx, $orderIdx){
     $pdo = pdoSqlConnect();
     $query = "select exists(select * from OrderLog where userIdx = ? and 
-                orderIdx = ? and deliveryStatus = 0 and isRefunded = 'N' 
+                orderIdx = ? and isRefunded = 'N' 
                 and isChanged = 'N' and status = 'N') as Exist;";
 
     $st = $pdo->prepare($query);
@@ -231,3 +231,35 @@ function isOrderedByMe($userIdx, $orderIdx){
     $pdo = null;
     return intval($res[0]['Exist']);
 }
+
+// UPDATE 교환 신청
+function changeOrder($orderIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE OrderLog
+                        SET updatedAt = CURRENT_TIMESTAMP,
+                            isChanged = 'P'
+                        WHERE orderIdx = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$orderIdx]);
+    $st = null;
+    $pdo = null;
+}
+
+// UPDATE 환불 신청
+function refundOrder($orderIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE OrderLog
+                        SET updatedAt = CURRENT_TIMESTAMP,
+                            isrefunded = 'P'
+                        WHERE orderIdx = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$orderIdx]);
+    $st = null;
+    $pdo = null;
+}
+
+

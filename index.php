@@ -42,6 +42,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/products/{productIdx}', ['ProductController', 'getProductDetail']); // 작품 상세 페이지 조회
     $r->addRoute('GET', '/products/options/{productIdx}', ['ProductController', 'getOption']); // 작품 옵션 조회
     $r->addRoute('PATCH', '/products/starred/{productIdx}', ['ProductController', 'starProduct']); // 작품 즐겨찾기 등록
+    $r->addRoute('GET', '/reviews/latest', ['ProductController', 'getLatestReview']); // 실시간 후기 목록 조회
 
     /* ******************   Seller   ****************** */
     $r->addRoute('PATCH', '/sellers/favorite/{sellerIdx}', ['SellerController', 'likeSeller']); // 좋아하는 작가 등록
@@ -49,14 +50,15 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     /* ******************   Order   ****************** */
     $r->addRoute('PATCH', '/addresses/{addressIdx}', ['OrderController', 'updateAddressInfo']); // 배송지 정보 수정
     $r->addRoute('POST', '/orders/{productIdx}', ['OrderController', 'createOrder']); // 작품 구매
-    $r->addRoute('DELETE', '/orders/{orderIdx}', ['OrderController', 'deleteOrder']);
+    $r->addRoute('DELETE', '/orders/{orderIdx}', ['OrderController', 'deleteOrder']); // 작품 구매 취소
     $r->addRoute('GET', '/orders', ['OrderController', 'getOrderList']); // 구매한 작품 목록 조회
+    $r->addRoute('POST', '/orders/{orderIdx}/changes', ['OrderController', 'changeOrder']); // 교환 신청
+    $r->addRoute('POST', '/orders/{orderIdx}/refunds', ['OrderController', 'refundOrder']); // 환불 신청
 
     /* ******************   Review   ****************** */
     $r->addRoute('POST', '/reviews/{orderIdx}/review', ['ReviewController', 'createReview']); // 후기 등록
     $r->addRoute('PATCH', '/reviews/{reviewIdx}', ['ReviewController', 'editReview']); // 후기 수정
     $r->addRoute('DELETE', '/reviews/{reviewIdx}', ['ReviewController', 'deleteReview']); // 후기 삭제
-    $r->addRoute('GET', '/reviews/latest', ['ReviewController', 'getLatestReviews']); // 실시간 후기 목록 조회
 
     /* ******************   Search   ****************** */
 
