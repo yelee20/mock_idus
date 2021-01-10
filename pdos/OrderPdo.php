@@ -155,4 +155,32 @@ function isValidDetailedOptionIdx($productIdx, $optionIdx, $detailedOptionIdx){
     return intval($res[0]['Exist']);
 }
 
+// GET 구매한 작품 목록 조회
+function getOrderList($userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select orderIdx, DATE_FORMAT(createdAt, '%Y.%m.%d') as date, price as totalPrice, OrderLog.productIdx,
+       productImageUrl, productName, sellerIdx, sellerName, deliveryStatus
+from OrderLog
+inner join (select Product.productIdx, productImageUrl, productName, S.sellerIdx, sellerName
+from Product
+inner join(select sellerIdx, sellerName from Seller) S on S.sellerIdx = Product.sellerIdx
+left join (select P.productIdx, group_concat(productImageUrl) as productImageUrl
+from Product as P
+left join (SELECT * FROM ( SELECT productIdx, productImageUrl , ROW_NUMBER()
+    OVER(PARTITION BY productIdx ORDER BY createdAt DESC) ITEM_RN FROM ProductImage ) TEST WHERE ITEM_RN = 1
+) PI on PI.productIdx = P.productIdx
+group by P.productIdx) PI on PI.productIdx = Product.productIdx) T on T.productIdx = OrderLog.productIdx
+where userIdx = ? and OrderLog.status = 'N';";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
+
 
