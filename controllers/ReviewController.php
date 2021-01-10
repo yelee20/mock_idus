@@ -103,7 +103,7 @@ try {
                 break;
             }
 
-            if(!isOrderedByMe($userIdx, $orderIdx) or doesReviewExist($orderIdx)){
+            if(!isDelivered($userIdx, $orderIdx) or doesReviewExist($orderIdx)){
                 $res->isSuccess = FALSE;
                 $res->code = 2008;
                 $res->message = "후기 등록 권한이 없습니다";

@@ -1,7 +1,7 @@
 <?php
 
-// 내가 주문한게 맞는지 확인
-function isOrderedByMe($userIdx, $orderIdx){
+// 내가 주문한게 맞는지, 배송 완료됐는지 확인
+function isDelivered($userIdx, $orderIdx){
     $pdo = pdoSqlConnect();
     $query = "select exists(select * from OrderLog where userIdx = ? and 
                 orderIdx = ? and deliveryStatus = 2 and isRefunded = 'N' 

@@ -19,7 +19,7 @@ function isValidAddressIdx($userIdx, $addressIdx){
 function isValidOrderIdx($orderIdx){
     $pdo = pdoSqlConnect();
     $query = "select exists(select * from OrderLog where
-                orderIdx = ? and deliveryStatus = 2 and isRefunded = 'N' 
+                orderIdx = ? and isRefunded = 'N' 
                 and isChanged = 'N' and status = 'N') as Exist;";
 
     $st = $pdo->prepare($query);
@@ -85,6 +85,23 @@ function getOptionInfoByIdx($productIdx,$optionIdx,$detailedOptionIdx){
 
     $st = $pdo->prepare($query);
     $st->execute([$productIdx,$optionIdx,$detailedOptionIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
+
+// GET 작품 정보 가져오기
+function getOrderInfoByIdx($orderIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select orderIdx, productIdx, quantity, price from OrderLog 
+                where orderIdx = ? and status = 'N';";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$orderIdx]);
     $st->setFetchMode(PDO::FETCH_ASSOC);
     $res = $st->fetchAll();
 
@@ -183,4 +200,34 @@ where userIdx = ? and OrderLog.status = 'N';";
     return $res;
 }
 
+// UPDATE 구매 취소
+function deleteOrder($orderIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE OrderLog
+                        SET updatedAt = CURRENT_TIMESTAMP,
+                            status = 'D'
+                        WHERE orderIdx = ?;";
 
+    $st = $pdo->prepare($query);
+    $st->execute([$orderIdx]);
+    $st = null;
+    $pdo = null;
+}
+
+// 내가 주문한게 맞는지 확인
+function isOrderedByMe($userIdx, $orderIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from OrderLog where userIdx = ? and 
+                orderIdx = ? and deliveryStatus = 0 and isRefunded = 'N' 
+                and isChanged = 'N' and status = 'N') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx, $orderIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}

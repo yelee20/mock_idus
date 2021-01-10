@@ -48,13 +48,15 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     /* ******************   Order   ****************** */
     $r->addRoute('PATCH', '/addresses/{addressIdx}', ['OrderController', 'updateAddressInfo']); // 배송지 정보 수정
-    $r->addRoute('POST', '/orders/{productIdx}', ['OrderController', 'createOrder']); // 배송지 정보 수정
+    $r->addRoute('POST', '/orders/{productIdx}', ['OrderController', 'createOrder']); // 작품 구매
+    $r->addRoute('DELETE', '/orders/{orderIdx}', ['OrderController', 'deleteOrder']);
     $r->addRoute('GET', '/orders', ['OrderController', 'getOrderList']); // 구매한 작품 목록 조회
 
     /* ******************   Review   ****************** */
     $r->addRoute('POST', '/reviews/{orderIdx}/review', ['ReviewController', 'createReview']); // 후기 등록
     $r->addRoute('PATCH', '/reviews/{reviewIdx}', ['ReviewController', 'editReview']); // 후기 수정
     $r->addRoute('DELETE', '/reviews/{reviewIdx}', ['ReviewController', 'deleteReview']); // 후기 삭제
+    $r->addRoute('GET', '/reviews/latest', ['ReviewController', 'getLatestReviews']); // 실시간 후기 목록 조회
 
     /* ******************   Search   ****************** */
 
