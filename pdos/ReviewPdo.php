@@ -44,3 +44,69 @@ function createReview($userIdx, $orderIdx, $rate, $content, $imageUrl)
     $st = null;
     $pdo = null;
 }
+
+// 후기 인덱스 유효성 검사
+function isValidReviewIdx($reviewIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from Review where
+                reviewIdx = ? and status != 'D') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$reviewIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
+// 수정된 후기인지
+function hasReviewEverEdited($reviewIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from Review where
+                reviewIdx = ? and status = 'E') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$reviewIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
+// 내가 작성한 후기가 맞는지 확인
+function isReviewWrittenByMe($userIdx, $reviewIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from Review where userIdx = ? and 
+                reviewIdx = ? and status != 'D') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx, $reviewIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
+// UPDATE 후기 수정
+function editReview($rate, $reviewContent, $imageUrl, $reviewIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE Review
+                        SET rate = ?,
+                            content  = ?,
+                            imageUrl = ?,
+                            updatedAt = CURRENT_TIMESTAMP,
+                            status = 'E'
+                        WHERE reviewIdx = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$rate, $reviewContent, $imageUrl, $reviewIdx]);
+    $st = null;
+    $pdo = null;
+}

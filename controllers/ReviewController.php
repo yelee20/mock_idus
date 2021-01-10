@@ -118,6 +118,112 @@ try {
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 
+        /*
+        * API No. 4
+        * API Name : 후기 수정 API
+        * 마지막 수정 날짜 : 21.01.10
+        */
+        case "editReview":
+            http_response_code(200);
+
+            $reviewIdx = $vars["reviewIdx"];
+            $jwt = $_SERVER["HTTP_X_ACCESS_TOKEN"];
+            $reviewContent = isset($req->reviewContent) ? $req->reviewContent : null;
+            $rate = isset($req->rate) ? $req->rate : null;
+            $imageUrl = isset($req->imageUrl) ? $req->imageUrl : null;
+
+            // JWT 유효성 검사
+            if (!isValidJWT($jwt, JWT_SECRET_KEY)) { // function.php 에 구현
+                $res->isSuccess = FALSE;
+                $res->code = 2000;
+                $res->message = "유효하지 않은 토큰입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                addErrorLogs($errorLogs, $res, $req);
+                return;
+            }
+
+            $userIdx = getDataByJWToken($jwt, JWT_SECRET_KEY)->userIdx;
+
+            if(is_null($userIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2001;
+                $res->message = "userIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(!isValidUserIdx($userIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2002;
+                $res->message = "유효하지 않은 userIdx입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(is_null($reviewIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2003;
+                $res->message = "reviewIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(!isValidReviewIdx($reviewIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2004;
+                $res->message = "유효하지 않은 reviewIdx입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(is_null($reviewContent)){
+                $res->isSuccess = FALSE;
+                $res->code = 2005;
+                $res->message = "reviewContent가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(is_null($rate)){
+                $res->isSuccess = FALSE;
+                $res->code = 2006;
+                $res->message = "rate가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if($rate != 0 and $rate != 0.5 and $rate != 1 and $rate != 1.5 and $rate != 2 and $rate != 2.5 and
+                $rate != 3 and $rate != 3.5 and $rate != 4 and $rate != 4.5 and $rate != 5){
+                $res->isSuccess = FALSE;
+                $res->code = 2007;
+                $res->message = "잘못된 형식의 rate입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(!isReviewWrittenByMe($userIdx, $reviewIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2008;
+                $res->message = "후기 수정 권한이 없습니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(hasReviewEverEdited($reviewIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2009;
+                $res->message = "더이상 수정이 불가한 후기입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            editReview($rate, $reviewContent, $imageUrl, $reviewIdx);
+            $res->isSuccess = TRUE;
+            $res->code = 1000;
+            $res->message = "후기 수정 성공";
+            echo json_encode($res, JSON_NUMERIC_CHECK);
+            break;
+
 
     }
 } catch (\Exception $e) {
