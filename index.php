@@ -53,6 +53,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     /* ******************   Review   ****************** */
     $r->addRoute('POST', '/reviews/{orderIdx}/review', ['ReviewController', 'createReview']); // 후기 등록
     $r->addRoute('PATCH', '/reviews/{reviewIdx}', ['ReviewController', 'editReview']); // 후기 수정
+    $r->addRoute('DELETE', '/reviews/{reviewIdx}', ['ReviewController', 'deleteReview']); // 후기 삭제
 
     /* ******************   Search   ****************** */
     $r->addRoute('GET', '/searches/top', ['SearchController', 'getLatestSearch']); // 최근 검색어 조회

@@ -110,3 +110,18 @@ function editReview($rate, $reviewContent, $imageUrl, $reviewIdx)
     $st = null;
     $pdo = null;
 }
+
+// UPDATE 후기 삭제
+function deleteReview($reviewIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE Review
+                        SET updatedAt = CURRENT_TIMESTAMP,
+                            status = 'D'
+                        WHERE reviewIdx = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$reviewIdx]);
+    $st = null;
+    $pdo = null;
+}
