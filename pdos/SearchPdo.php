@@ -73,10 +73,9 @@ function createSearchLog($userIdx, $keyword)
 // GET 최근 검색어 조회
 function getLatestSearch($userIdx){
     $pdo = pdoSqlConnect();
-    $query = "select group_concat(keyword) as latestKeyword
+    $query = "select distinct keyword as latestKeyword
 from SearchLog
-where userIdx = ? and HOUR(TIMEDIFF(SearchLog.createdAt, CURRENT_TIMESTAMP())) < 24
-group by userIdx;";
+where userIdx = ? and HOUR(TIMEDIFF(SearchLog.createdAt, CURRENT_TIMESTAMP())) < 48;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);
@@ -86,17 +85,17 @@ group by userIdx;";
     $st = null;
     $pdo = null;
 
-    return $res[0];
+    return $res;
 }
 
 // GET 인기 검색어 조회
 function getTopSearch(){
     $pdo = pdoSqlConnect();
-    $query = "select ROW_NUMBER() OVER (ORDER BY cnt desc), keyword as topKeyword
-from (select keyword, count(keyword) as cnt
+    $query = "select keyword
 from SearchLog
-where HOUR(TIMEDIFF(SearchLog.createdAt, CURRENT_TIMESTAMP())) < 24
-group by keyword) S;";
+where HOUR(TIMEDIFF(SearchLog.createdAt, CURRENT_TIMESTAMP())) < 72
+group by keyword
+order by count(keyword) desc;";
 
     $st = $pdo->prepare($query);
     $st->execute([]);
@@ -110,11 +109,11 @@ group by keyword) S;";
 }
 
 // GET 24시간이내 검색기록이 있는지 확인
-function searchedIn24Hrs($userIdx){
+function searchedIn48Hrs($userIdx){
     $pdo = pdoSqlConnect();
     $query = "select exists(select userIdx
 from SearchLog
-where userIdx = ? and HOUR(TIMEDIFF(SearchLog.createdAt, CURRENT_TIMESTAMP())) < 24) as Exist;";
+where userIdx = ? and HOUR(TIMEDIFF(SearchLog.createdAt, CURRENT_TIMESTAMP())) < 48) as Exist;";
 
     $st = $pdo->prepare($query);
     $st->execute([$userIdx]);

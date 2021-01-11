@@ -95,22 +95,28 @@ try {
                 break;
             }
 
-            if(!searchedIn24Hrs($userIdx)){
+            if(!searchedIn48Hrs($userIdx)){
                 $res->result = getTopSearch();
                 $res->isSuccess = TRUE;
                 $res->code = 1000;
                 $res->message = "실시간 인기 검색어 조회 성공";
-                $result = json_encode($res, JSON_NUMERIC_CHECK);
-                echo str_replace('ROW_NUMBER() OVER (ORDER BY cnt desc)','rank',$result);
+                echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
+            $latestKeyword = [];
+            for ($x = 0; $x < sizeof(getLatestSearch($userIdx)); $x++){
+                array_push($latestKeyword, getLatestSearch($userIdx)[$x]['latestKeyword']);
+            }
 
-            $res->result = array(getLatestSearch($userIdx),getTopSearch());
+            $topKeyword = [];
+            for ($y = 0; $y < sizeof(getTopSearch()); $y++){
+                array_push($topKeyword, getTopSearch()[$y]['keyword']);
+            }
+            $res->result = array('latestKeyword'=>$latestKeyword, 'topKeyword'=>$topKeyword);
             $res->isSuccess = TRUE;
             $res->code = 1001;
             $res->message = "최근 검색어 및 실시간 인기검색어 조회 성공";
-            $result = json_encode($res, JSON_NUMERIC_CHECK);
-            echo str_replace('ROW_NUMBER() OVER (ORDER BY cnt desc)','rank',$result);
+            echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 
 

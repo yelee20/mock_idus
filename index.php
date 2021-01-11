@@ -61,8 +61,8 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('DELETE', '/reviews/{reviewIdx}', ['ReviewController', 'deleteReview']); // 후기 삭제
 
     /* ******************   Search   ****************** */
-
     $r->addRoute('GET', '/products', ['SearchController', 'searchKeyword']); // 작품 검색
+    $r->addRoute('GET', '/searches/top', ['SearchController', 'getLatestSearch']); // 작품 검색
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
 //    // {id} must be a number (\d+)
