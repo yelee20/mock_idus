@@ -317,48 +317,40 @@ order by max(reviewIdx) desc;";
 
     return $res;
 }
-// CREATE
-//    function addMaintenance($message){
-//        $pdo = pdoSqlConnect();
-//        $query = "INSERT INTO MAINTENANCE (MESSAGE) VALUES (?);";
-//
-//        $st = $pdo->prepare($query);
-//        $st->execute([$message]);
-//
-//        $st = null;
-//        $pdo = null;
-//
-//    }
 
+// GET 실시간 구매 목록 조회
+function getLatestOrder($userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select OrderLog.productIdx, productImageUrl, productName, sellerIdx, sellerName, reviewIdx, reviewerIdx, reviewerName, reviewContent,
+       case when imageUrl is null then 0 else 1 end as isReviewImageAttached, rate,
+       case when Star.userIdx is null then 0 else 1 end as isStarredByMe
+from OrderLog
+left join (select R2.productIdx, R2.reviewIdx, R1.userIdx as reviewerIdx, userName as reviewerName,
+            content as reviewContent, imageUrl, rate
+from Review as R1
+inner join (select O.productIdx, max(reviewIdx) as reviewIdx
+from Review
+inner join (select orderIdx, productIdx from OrderLog) O on O.orderIdx = Review.orderIdx
+group by O.productIdx) R2 on R1.reviewIdx = R2.reviewIdx
+inner join (select userIdx, userName from UserInfo) U on U.userIdx = R1.userIdx) F on F.productIdx = OrderLog.productIdx
+left join (SELECT * FROM ( SELECT productIdx, productImageUrl , ROW_NUMBER()
+    OVER(PARTITION BY productIdx ORDER BY createdAt DESC) ITEM_RN FROM ProductImage ) TEST WHERE ITEM_RN = 1
+) PI on PI.productIdx = OrderLog.productIdx
+inner join (select productIdx, productName,
+                   Seller.sellerIdx, Seller.sellerName from Product, Seller
+    where Seller.sellerIdx = Product.sellerIdx) S on S.productIdx = OrderLog.productIdx
+left join (select productIdx, userIdx from StarredProduct where userIdx = ? and status = 'N') Star on OrderLog.productIdx = Star.productIdx
+group by productIdx
+order by max(orderIdx) desc
+;";
 
-// UPDATE
-//    function updateMaintenanceStatus($message, $status, $no){
-//        $pdo = pdoSqlConnect();
-//        $query = "UPDATE MAINTENANCE
-//                        SET MESSAGE = ?,
-//                            STATUS  = ?
-//                        WHERE NO = ?";
-//
-//        $st = $pdo->prepare($query);
-//        $st->execute([$message, $status, $no]);
-//        $st = null;
-//        $pdo = null;
-//    }
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
 
-// RETURN BOOLEAN
-//    function isRedundantEmail($email){
-//        $pdo = pdoSqlConnect();
-//        $query = "SELECT EXISTS(SELECT * FROM USER_TB WHERE EMAIL= ?) AS exist;";
-//
-//
-//        $st = $pdo->prepare($query);
-//        //    $st->execute([$param,$param]);
-//        $st->execute([$email]);
-//        $st->setFetchMode(PDO::FETCH_ASSOC);
-//        $res = $st->fetchAll();
-//
-//        $st=null;$pdo = null;
-//
-//        return intval($res[0]["exist"]);
-//
-//    }
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}

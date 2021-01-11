@@ -43,6 +43,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/products/options/{productIdx}', ['ProductController', 'getOption']); // 작품 옵션 조회
     $r->addRoute('PATCH', '/products/starred/{productIdx}', ['ProductController', 'starProduct']); // 작품 즐겨찾기 등록
     $r->addRoute('GET', '/reviews/latest', ['ProductController', 'getLatestReview']); // 실시간 후기 목록 조회
+    $r->addRoute('GET', '/orders/latest', ['ProductController', 'getLatestOrder']); // 실시간 구매 목록 조회
 
     /* ******************   Seller   ****************** */
     $r->addRoute('PATCH', '/sellers/favorite/{sellerIdx}', ['SellerController', 'likeSeller']); // 좋아하는 작가 등록
@@ -59,6 +60,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/reviews/{orderIdx}/review', ['ReviewController', 'createReview']); // 후기 등록
     $r->addRoute('PATCH', '/reviews/{reviewIdx}', ['ReviewController', 'editReview']); // 후기 수정
     $r->addRoute('DELETE', '/reviews/{reviewIdx}', ['ReviewController', 'deleteReview']); // 후기 삭제
+    $r->addRoute('GET', '/products/{productIdx}/review', ['ReviewController', 'getReviews']); // 작품 검색
 
     /* ******************   Search   ****************** */
     $r->addRoute('GET', '/products', ['SearchController', 'searchKeyword']); // 작품 검색

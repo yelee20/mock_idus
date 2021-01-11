@@ -125,3 +125,27 @@ function deleteReview($reviewIdx)
     $st = null;
     $pdo = null;
 }
+
+//READ 홈 화면 조회
+function getReviews($productIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "select reviewIdx, R.userIdx as reviewerIdx, userName as reviewerName,
+       U.profileImageUrl as reviewerProfileImageUrl, imageUrl as reviewImageUrl, content as reviewContent,
+       rate, date_format(R.createdAt,'%Y년 %c월 %e일') as date
+from Review as R
+inner join (select userIdx, userName, profileImageUrl from UserInfo) U on U.userIdx = R.userIdx
+inner join (select orderIdx, productIdx from OrderLog) O on O.orderIdx = R.orderIdx
+where O.productIdx = ?
+order by reviewIdx desc;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$productIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
