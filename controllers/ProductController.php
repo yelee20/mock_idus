@@ -300,8 +300,16 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
+            getLatestReviewContent($userIdx);
 
-            $res->result = getLatestReview($userIdx);
+            $getLatestReview = getLatestReview($userIdx);
+            for ($x=0; $x < sizeof($getLatestReview);$x++){
+                $productIdx = $getLatestReview[$x]['productIdx'];
+                $getLatestReview[$x]['review']=getLatestReviewContent($productIdx);
+                }
+
+
+            $res->result = $getLatestReview;
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "실시간 후기 목록 조회 성공";

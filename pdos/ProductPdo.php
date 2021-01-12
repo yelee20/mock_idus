@@ -318,6 +318,34 @@ order by max(reviewIdx) desc;";
     return $res;
 }
 
+//READ 실시간 후기 목록
+function getLatestReviewContent($productIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "SELECT T.reviewIdx, T.userIdx as reviewerIdx, U.userName as reviewerName,
+       T.content as ReviewContent,
+       case when T.imageUrl is null then 0 else 1 end as isReviewImageAttached,rate FROM (
+
+   SELECT O.productIdx, R.reviewIdx, R.userIdx, R.content ,R.imageUrl, R.rate,
+          RANK() OVER (PARTITION BY O.productIdx ORDER BY R.reviewIdx DESC) AS RN
+   FROM Review AS R
+   inner join (select orderIdx, productIdx from OrderLog) O on O.orderIdx = R.orderIdx
+    where O.productIdx = ?
+) AS T
+inner join (select userIdx, userName from UserInfo) U on U.userIdx = T.userIdx
+WHERE T.RN <= 3;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$productIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
+
 // GET 실시간 구매 목록 조회
 function getLatestOrder($userIdx){
     $pdo = pdoSqlConnect();
