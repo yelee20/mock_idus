@@ -444,3 +444,28 @@ function getCategory(){
 
     return $res;
 }
+
+// GET 최신 작품 목록 조회
+function getLatestProduct($userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select P.productIdx, PI.productImageUrl, P.productName, P.sellerIdx, sellerName,
+       case when Star.userIdx is null then 0 else 1 end as isStarredByMe
+from Product as P
+left join (SELECT * FROM ( SELECT productIdx, productImageUrl , ROW_NUMBER()
+    OVER(PARTITION BY productIdx ORDER BY createdAt DESC) ITEM_RN FROM ProductImage ) TEST WHERE ITEM_RN = 1
+) PI on PI.productIdx = P.productIdx
+inner join (select sellerIdx, sellerName from Seller) S on S.sellerIdx = P.sellerIdx
+left join (select productIdx, userIdx from StarredProduct where userIdx = ? and status = 'N')
+           Star on P.productIdx = Star.productIdx
+order by productIdx desc;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}

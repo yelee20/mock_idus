@@ -93,7 +93,8 @@ function getTopSellers($userIdx)
 {
     $pdo = pdoSqlConnect();
     $query = "select S.sellerIdx, sellerName, profileImageUrl as sellerProfileImageUrl,
-       backgroundImageUrl as sellerBackgroundImageUrl, bio, ifnull(FS.userIdx,0) as isLikedByMe
+       backgroundImageUrl as sellerBackgroundImageUrl, bio, 
+       case when FS.userIdx is null then 0 else 1 end as isLikedByMe
 from Seller as S
 inner join (select Seller.sellerIdx, sum(orderNum) as orderNum, reviewNum, avgRate
 from Seller
