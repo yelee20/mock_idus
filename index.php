@@ -47,6 +47,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/orders/latest', ['ProductController', 'getLatestOrder']); // 실시간 구매 목록 조회
 
     /* ******************   Seller   ****************** */
+    $r->addRoute('GET', '/sellers/top', ['SellerController', 'getTopSellers']); // 인기 작가 목록 조회
     $r->addRoute('PATCH', '/sellers/favorite/{sellerIdx}', ['SellerController', 'likeSeller']); // 좋아하는 작가 등록
 
     /* ******************   Order   ****************** */
