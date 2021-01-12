@@ -382,3 +382,65 @@ order by max(orderIdx) desc
 
     return $res;
 }
+
+// GET 인기 작품 목록 조회
+function getTopProducts($userIdx,$category){
+    $pdo = pdoSqlConnect();
+    $query = "select P.productIdx, productImageUrl, productName, P.sellerIdx, sellerName, R.reviewIdx, R2.reviewerIdx,
+       reviewerName, content as reviewContent,
+       case when imageUrl is null then 0 else 1 end as isReviewImageAttached, rate,
+        case when Star.userIdx is null then 0 else 1 end as isStarredByMe
+from Product as P
+inner join (select P.productIdx, count(orderIdx) as orderNum
+from Product as P
+inner join (select orderIdx, productIdx from OrderLog) O on O.productIdx = P.productIdx
+group by productIdx) PA on PA.productIdx = P.productIdx
+inner join (select O.productIdx, count(reviewIdx) as reviewNum, avg(rate) as avgRate
+from Review as R
+inner join (select orderIdx, productIdx from OrderLog) O on O.orderIdx = R.orderIdx
+group by O.productIdx) RA on RA.productIdx = P.productIdx
+
+left join (SELECT * FROM ( SELECT productIdx, productImageUrl , ROW_NUMBER()
+    OVER(PARTITION BY productIdx ORDER BY createdAt DESC) ITEM_RN FROM ProductImage ) TEST WHERE ITEM_RN = 1
+) PI on PI.productIdx = P.productIdx
+inner join (select sellerIdx, sellerName from Seller) S on S.sellerIdx = P.sellerIdx
+inner join (select O.productIdx, max(reviewIdx) as reviewIdx
+from Review
+inner join (select orderIdx, productIdx from OrderLog) O on O.orderIdx = Review.orderIdx
+group by O.productIdx) R on R.productIdx = P.productIdx
+inner join (select reviewIdx, userIdx as reviewerIdx, content, rate, imageUrl from Review) R2 on
+R2.reviewIdx = R.reviewIdx
+inner join (select userIdx, userName as reviewerName from UserInfo) U on U.userIdx = R2.reviewerIdx
+left join (select productIdx, userIdx from StarredProduct where userIdx = ? and status = 'N')
+           Star on P.productIdx = Star.productIdx
+where category = ?
+group by P.productIdx
+order by (PA.orderNum+RA.reviewNum)*RA.avgRate desc;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx,$category]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
+
+
+// GET 카테고리 목록 조회
+function getCategory(){
+    $pdo = pdoSqlConnect();
+    $query = "select distinct category from Product;";
+
+    $st = $pdo->prepare($query);
+    $st->execute();
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}

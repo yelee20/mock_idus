@@ -39,6 +39,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
 
     /* ******************   Product   ****************** */
     $r->addRoute('GET', '/products/home', ['ProductController', 'getHome']); // 홈 화면 조회
+    $r->addRoute('GET', '/products/top', ['ProductController', 'getTopProducts']); // 인기 작품 목록 조회
     $r->addRoute('GET', '/products/{productIdx}', ['ProductController', 'getProductDetail']); // 작품 상세 페이지 조회
     $r->addRoute('GET', '/products/options/{productIdx}', ['ProductController', 'getOption']); // 작품 옵션 조회
     $r->addRoute('PATCH', '/products/starred/{productIdx}', ['ProductController', 'starProduct']); // 작품 즐겨찾기 등록
