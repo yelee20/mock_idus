@@ -50,6 +50,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     /* ******************   Seller   ****************** */
     $r->addRoute('GET', '/sellers/top', ['SellerController', 'getTopSellers']); // 인기 작가 목록 조회
     $r->addRoute('PATCH', '/sellers/favorite/{sellerIdx}', ['SellerController', 'likeSeller']); // 좋아하는 작가 등록
+    $r->addRoute('GET', '/sellers/{sellerIdx}', ['SellerController', 'getSellerInfo']); // 작가 프로필 조회
 
     /* ******************   Order   ****************** */
     $r->addRoute('PATCH', '/addresses/{addressIdx}', ['OrderController', 'updateAddressInfo']); // 배송지 정보 수정

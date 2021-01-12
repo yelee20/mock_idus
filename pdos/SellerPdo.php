@@ -122,3 +122,33 @@ limit 5";
 
     return $res;
 }
+
+//READ 작가 프로필 조회
+function getSellerInfo($userIdx, $sellerIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "select Seller.sellerIdx, sellerName, profileImageUrl, backgroundImageUrl, bio, ifnull(R.rate,0) as rate,
+       ifnull(likedNum,0) as likedNum, case when Fav.userIdx is null then 0 else 1 end as isLikedByMe
+from Seller
+left join (select sellerIdx, format(avg(rate),1) as rate
+from Review as R
+inner join (select orderIdx, productIdx from OrderLog) O on O.orderIdx = R.orderIdx
+inner join (select sellerIdx, productIdx from Product) P on P.productIdx = O.productIdx
+group by sellerIdx) R on R.sellerIdx = Seller.sellerIdx
+left join (select sellerIdx, count(userIdx) as likedNum
+from FavoriteSeller
+group by sellerIdx) FS on FS.sellerIdx = Seller.sellerIdx
+left join (select sellerIdx, userIdx from FavoriteSeller where userIdx = ? and status = 'N')
+           Fav on Seller.sellerIdx = Fav.sellerIdx
+where R.sellerIdx = ?";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx, $sellerIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res[0];
+}
