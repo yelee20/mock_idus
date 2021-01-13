@@ -149,3 +149,63 @@ order by reviewIdx desc;";
 
     return $res;
 }
+
+// CREATE 후기 등록
+function createReviewComment($reviewIdx, $userIdx, $commentContent)
+{
+    $pdo = pdoSqlConnect();
+    $query = "insert into ReviewComment (reviewIdx, userIdx, comment) 
+                values (?,?,?);";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$reviewIdx, $userIdx, $commentContent]);
+    $st = null;
+    $pdo = null;
+}
+
+// 후기 댓글 인덱스 확인
+function isValidReviewCommentIdx($commentIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from ReviewComment where 
+                commentIdx = ? and status != 'D') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$commentIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
+// 내가 작성한 후기 댓글이 맞는지 확인
+function isCommentWrittenByMe($commentIdx, $userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select * from ReviewComment where 
+                commentIdx = ? and userIdx = ? and status != 'D') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$commentIdx, $userIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
+// UPDATE 후기 삭제
+function deleteReviewComment($commentIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE ReviewComment
+                        SET updatedAt = CURRENT_TIMESTAMP,
+                            status = 'D'
+                        WHERE commentIdx = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$commentIdx]);
+    $st = null;
+    $pdo = null;
+}

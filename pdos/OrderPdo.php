@@ -262,4 +262,70 @@ function refundOrder($orderIdx)
     $pdo = null;
 }
 
+// UPDATE 교환 신청 승인/거부
+function updateChangeRequest($response, $orderIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE OrderLog
+                        SET updatedAt = CURRENT_TIMESTAMP,
+                            isChanged = ?
+                        WHERE orderIdx = ?;";
 
+    $st = $pdo->prepare($query);
+    $st->execute([$response, $orderIdx]);
+    $st = null;
+    $pdo = null;
+}
+
+// UPDATE 환불 신청 승인/거부
+function updateRefundRequest($response, $orderIdx)
+{
+    $pdo = pdoSqlConnect();
+    $query = "UPDATE OrderLog
+                        SET updatedAt = CURRENT_TIMESTAMP,
+                            isRefunded = ?
+                        WHERE orderIdx = ?;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$response, $orderIdx]);
+    $st = null;
+    $pdo = null;
+}
+
+// 환불 신청 들어온 작품인지, 신청 승인/거부 권한이 있는지 확인
+function isSoldByMe($sellerIdx, $orderIdx) {
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select sellerIdx, orderIdx
+from OrderLog
+inner join (select productIdx, sellerIdx from Product) P on P.productIdx = OrderLog.productIdx
+where sellerIdx = ? and orderIdx =? and isChanged = 'P' and (isRefunded = 'N' or isRefunded = 'D') and
+      status = 'N') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$sellerIdx, $orderIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}
+
+// 환불 신청 들어온 작품인지, 신청 승인/거부 권한이 있는지 확인
+function isSoldByMe2($sellerIdx, $orderIdx) {
+    $pdo = pdoSqlConnect();
+    $query = "select exists(select sellerIdx, orderIdx
+from OrderLog
+inner join (select productIdx, sellerIdx from Product) P on P.productIdx = OrderLog.productIdx
+where sellerIdx = ? and orderIdx =? and isRefunded = 'P' and (isChanged = 'N' or isChanged = 'D') and
+      status = 'N') as Exist;";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$sellerIdx, $orderIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+    return intval($res[0]['Exist']);
+}

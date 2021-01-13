@@ -670,6 +670,166 @@ try {
             break;
 
 
+
+        /*
+        * API No. 4
+        * API Name : 교환 신청 승인 / 거부 API
+        * 마지막 수정 날짜 : 21.01.10
+        */
+        case "updateChangeRequest":
+            http_response_code(200);
+
+            $orderIdx = $vars['orderIdx'];
+            $sellerIdx = isset($req->sellerIdx) ? $req->sellerIdx : null;
+            $response = isset($req->response) ? $req->response : null;
+
+            if(is_null($sellerIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2000;
+                $res->message = "sellerIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(!isValidSellerIdx($sellerIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2001;
+                $res->message = "유효하지 않은 sellerIdx입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(is_null($orderIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2002;
+                $res->message = "orderIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(is_null($response)){
+                $res->isSuccess = FALSE;
+                $res->code = 2003;
+                $res->message = "response가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if($response != 'D' and $response != 'Y'){
+                $res->isSuccess = FALSE;
+                $res->code = 2004;
+                $res->message = "잘못된 형식의 response입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(!isSoldByMe($sellerIdx, $orderIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2005;
+                $res->message = "교환 신청 승인/거부 권한이 없습니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if($response == 'Y'){
+                updateChangeRequest($response, $orderIdx);
+                $res->isSuccess = TRUE;
+                $res->code = 1000;
+                $res->message = "교환 신청 승인 성공";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if ($response == 'D'){
+                updateChangeRequest($response, $orderIdx);
+                $res->isSuccess = TRUE;
+                $res->code = 1001;
+                $res->message = "교환 신청 거부 성공";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+
+        /*
+        * API No. 4
+        * API Name : 교환 신청 승인 / 거부 API
+        * 마지막 수정 날짜 : 21.01.13
+        */
+        case "updateRefundRequest":
+            http_response_code(200);
+
+            $orderIdx = $vars['orderIdx'];
+            $sellerIdx = isset($req->sellerIdx) ? $req->sellerIdx : null;
+            $response = isset($req->response) ? $req->response : null;
+
+            if(is_null($sellerIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2000;
+                $res->message = "sellerIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(!isValidSellerIdx($sellerIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2001;
+                $res->message = "유효하지 않은 sellerIdx입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(is_null($orderIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2002;
+                $res->message = "orderIdx가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(is_null($response)){
+                $res->isSuccess = FALSE;
+                $res->code = 2003;
+                $res->message = "response가 null입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if($response != 'D' and $response != 'Y'){
+                $res->isSuccess = FALSE;
+                $res->code = 2004;
+                $res->message = "잘못된 형식의 response입니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if(!isSoldByMe2($sellerIdx, $orderIdx)){
+                $res->isSuccess = FALSE;
+                $res->code = 2005;
+                $res->message = "환불 신청 승인/거부 권한이 없습니다";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if($response == 'Y'){
+                updateRefundRequest($response, $orderIdx);
+                $res->isSuccess = TRUE;
+                $res->code = 1000;
+                $res->message = "환불 신청 승인 성공";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+            if ($response == 'D'){
+                updateRefundRequest($response, $orderIdx);
+                $res->isSuccess = TRUE;
+                $res->code = 1001;
+                $res->message = "환불 신청 거부 성공";
+                echo json_encode($res, JSON_NUMERIC_CHECK);
+                break;
+            }
+
+
+
     }
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);

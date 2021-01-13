@@ -25,7 +25,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/jwt', ['JWTController', 'createJwt']);   // JWT 생성: 로그인 + 해싱된 패스워드 검증 내용 추가
     $r->addRoute('GET', '/jwt', ['JWTController', 'validateJwt']);  // JWT 유효성 검사
 
-    /* ******************   User, Seller   ****************** */
+    /* ******************   User   ****************** */
     $r->addRoute('GET', '/', ['IndexController', 'index']);
     $r->addRoute('POST', '/login', ['IndexController', 'login']); // 로그인
     $r->addRoute('POST', '/logout', ['IndexController', 'logout']); // 로그아웃
@@ -57,10 +57,14 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('POST', '/orders/{productIdx}', ['OrderController', 'createOrder']); // 작품 구매
     $r->addRoute('DELETE', '/orders/{orderIdx}', ['OrderController', 'deleteOrder']); // 작품 구매 취소
     $r->addRoute('GET', '/orders', ['OrderController', 'getOrderList']); // 구매한 작품 목록 조회
-    $r->addRoute('POST', '/orders/{orderIdx}/changes', ['OrderController', 'changeOrder']); // 교환 신청
-    $r->addRoute('POST', '/orders/{orderIdx}/refunds', ['OrderController', 'refundOrder']); // 환불 신청
+    $r->addRoute('POST', '/orders/{orderIdx}/change', ['OrderController', 'changeOrder']); // 교환 신청
+    $r->addRoute('POST', '/orders/{orderIdx}/refund', ['OrderController', 'refundOrder']); // 환불 신청
+    $r->addRoute('PATCH', '/orders/{orderIdx}/change', ['OrderController', 'updateChangeRequest']); // 교환 신청 승인/거부
+    $r->addRoute('PATCH', '/orders/{orderIdx}/refund', ['OrderController', 'updateRefundRequest']); // 환불 신청 승인/거부
 
     /* ******************   Review   ****************** */
+    $r->addRoute('POST', '/reviews/comments/{reviewIdx}', ['ReviewController', 'createReviewComment']); // 후기 댓글 등록
+    $r->addRoute('DELETE', '/reviews/comments/{commentIdx}', ['ReviewController', 'deleteReviewComment']); // 후기 댓글 삭제
     $r->addRoute('POST', '/reviews/{orderIdx}/review', ['ReviewController', 'createReview']); // 후기 등록
     $r->addRoute('PATCH', '/reviews/{reviewIdx}', ['ReviewController', 'editReview']); // 후기 수정
     $r->addRoute('DELETE', '/reviews/{reviewIdx}', ['ReviewController', 'deleteReview']); // 후기 삭제

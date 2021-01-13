@@ -204,7 +204,7 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
-            
+
             $res->result = getSellerInfo($userIdx,$sellerIdx);
             $res->isSuccess = TRUE;
             $res->code = 1000;
