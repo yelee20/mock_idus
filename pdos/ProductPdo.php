@@ -471,3 +471,56 @@ order by productIdx desc;";
 
     return $res;
 }
+
+// GET 최신 작품 목록 조회
+function getRecommendation($userIdx){
+    $pdo = pdoSqlConnect();
+    $query = "select distinct T.productIdx, productImageUrl, P.productName, T.sellerIdx, S.sellerName, isStarredByMe
+from Product as P
+inner join (select P.productIdx, P.sellerIdx, ifnull(orderNum+rateNum*rate,0)+isLikedByMe*10 as sellerScore,
+       ifnull(searchNum,0) as searchScore, ifnull(viewScore,0) as viewScore,
+             case when AB.userIdx is null then 0 else 1 end as isOrderedByMe,
+             case when SP.userIdx is null then 0 else 1 end as isStarredByMe
+from Product as P
+left join (select P.sellerIdx, O.orderIdx, count(O.orderIdx) as orderNum, ifnull(count(rate),0) as rateNum,
+       ifnull(avg(rate),0) as rate, case when F.userIdx is null then 0 else 1 end as isLikedByMe
+from Product as P
+left join (select orderIdx, productIdx from OrderLog where userIdx = $userIdx and status != 'D')
+    O on O.productIdx = P.productIdx
+left join (select reviewIdx, orderIdx, rate from Review where userIdx = $userIdx and status != 'D')
+    R on R.orderIdx = O.orderIdx
+left join (select sellerIdx,userIdx from FavoriteSeller where userIdx = $userIdx and status != 'D') F on
+    F.sellerIdx = P.sellerIdx
+group by P.sellerIdx) C on C.sellerIdx = P.sellerIdx
+left join (select P.productIdx, keyword, searchNum
+from Product as P
+inner join(select keyword, count(keyword) as searchNum from SearchLog
+where userIdx = $userIdx group by keyword) K
+inner join (select sellerIdx, sellerName from Seller) S on S.sellerIdx = P.productIdx
+where productName like concat('%',keyword,'%') or productInfo like concat('%',keyword,'%')
+or sellerName like concat('%',keyword,'%')) K on K.productIdx = P.productIdx
+inner join (select P.productIdx, count(userIdx) as viewScore
+from Product as P
+left join (select userIdx, productIdx from ViewLog where userIdx = $userIdx) V on P.productIdx = V.productIdx
+group by P.productIdx) V on V.productIdx = P.productIdx
+left join (select productIdx, userIdx, orderIdx
+from OrderLog) AB on AB.productIdx = P.productIdx and AB.orderIdx = C.orderIdx
+left join (select productIdx, userIdx from StarredProduct where status != 'D' and userIdx = $userIdx)
+    SP on SP.productIdx = P.productIdx
+where status != 'D') T on T.productIdx = P.productIdx
+inner join (select sellerIdx, sellerName from Seller) S on S.sellerIdx=P.sellerIdx
+left join (SELECT * FROM ( SELECT productIdx, productImageUrl , ROW_NUMBER()
+    OVER(PARTITION BY productIdx ORDER BY createdAt DESC) ITEM_RN FROM ProductImage) TEST WHERE ITEM_RN = 1
+) PI on PI.productIdx = P.productIdx
+order by sellerScore+searchScore+viewScore+isStarredByMe*10-isOrderedByMe*5 desc, P.productIdx desc";
+
+    $st = $pdo->prepare($query);
+    $st->execute([$userIdx]);
+    $st->setFetchMode(PDO::FETCH_ASSOC);
+    $res = $st->fetchAll();
+
+    $st = null;
+    $pdo = null;
+
+    return $res;
+}
