@@ -41,9 +41,9 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     $r->addRoute('GET', '/products/home', ['ProductController', 'getHome']); // 홈 화면 조회
     $r->addRoute('GET', '/products/top', ['ProductController', 'getTopProducts']); // 인기 작품 목록 조회
     $r->addRoute('GET', '/products/latest', ['ProductController', 'getLatestProduct']); // 최신 작품 목록 조회
+    $r->addRoute('PATCH', '/products/{productIdx}/star', ['ProductController', 'starProduct']); // 작품 즐겨찾기 등록
     $r->addRoute('GET', '/products/{productIdx}', ['ProductController', 'getProductDetail']); // 작품 상세 페이지 조회
-    $r->addRoute('GET', '/products/options/{productIdx}', ['ProductController', 'getOption']); // 작품 옵션 조회
-    $r->addRoute('PATCH', '/products/starred/{productIdx}', ['ProductController', 'starProduct']); // 작품 즐겨찾기 등록
+    $r->addRoute('GET', '/products/{productIdx}/options', ['ProductController', 'getOption']); // 작품 옵션 조회
     $r->addRoute('GET', '/reviews/latest', ['ProductController', 'getLatestReview']); // 실시간 후기 목록 조회
     $r->addRoute('GET', '/orders/latest', ['ProductController', 'getLatestOrder']); // 실시간 구매 목록 조회
 
@@ -65,14 +65,14 @@ $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) 
     /* ******************   Review   ****************** */
     $r->addRoute('POST', '/reviews/comments/{reviewIdx}', ['ReviewController', 'createReviewComment']); // 후기 댓글 등록
     $r->addRoute('DELETE', '/reviews/comments/{commentIdx}', ['ReviewController', 'deleteReviewComment']); // 후기 댓글 삭제
-    $r->addRoute('POST', '/reviews/{orderIdx}/review', ['ReviewController', 'createReview']); // 후기 등록
+    $r->addRoute('POST', '/orders/{orderIdx}/review', ['ReviewController', 'createReview']); // 후기 등록
     $r->addRoute('PATCH', '/reviews/{reviewIdx}', ['ReviewController', 'editReview']); // 후기 수정
     $r->addRoute('DELETE', '/reviews/{reviewIdx}', ['ReviewController', 'deleteReview']); // 후기 삭제
-    $r->addRoute('GET', '/products/{productIdx}/review', ['ReviewController', 'getReviews']); // 작품 검색
+    $r->addRoute('GET', '/products/{productIdx}/reviews', ['ReviewController', 'getReviews']); // 작품 후기 목록 조회
 
     /* ******************   Search   ****************** */
     $r->addRoute('GET', '/products', ['SearchController', 'searchKeyword']); // 작품 검색
-    $r->addRoute('GET', '/searches/top', ['SearchController', 'getLatestSearch']); // 작품 검색
+    $r->addRoute('GET', '/searches/top', ['SearchController', 'getLatestSearch']); // 최근 검색어 및 인기 검색어 조회
 
 //    $r->addRoute('GET', '/users', 'get_all_users_handler');
 //    // {id} must be a number (\d+)
