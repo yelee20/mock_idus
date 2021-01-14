@@ -25,19 +25,20 @@ SELECT reviewIdx, Product.productIdx
 , ROW_NUMBER() OVER(PARTITION BY Product.productIdx ORDER BY reviewIdx DESC) as RowIdx
 
 From Product
-left join(
-select reviewIdx as reviewIdx, productIdx, U.userIdx as reviewerIdx, userName as reviewerName,
+inner join(
+select reviewIdx as reviewIdx, O.productIdx, U.userIdx as reviewerIdx, userName as reviewerName,
        profileImageUrl as reviewerProfileImageUrl, content as reviewcontent,
         case when imageUrl is null then 0 else 1 end as isReviewImageAttached, rate
 from Review
 inner join (select userIdx, userName, profileImageUrl from UserInfo) U on U.userIdx = Review.userIdx
+inner join (select orderIdx, productIdx from OrderLog) O on O.orderIdx = Review.orderIdx
 order by reviewIdx desc) R on R.productIdx = Product.productIdx
 
 ) AS t
 
 WHERE RowIdx = 1) R on P.productIdx = R.productIdx
 left join (select productIdx, userIdx from StarredProduct where userIdx = ? and status = 'N') Star on P.productIdx = Star.productIdx
-where P.status = 'N' 
+where P.status = 'N'
 order by productIdx desc
 ";
 
