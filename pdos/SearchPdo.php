@@ -20,6 +20,7 @@ left join (SELECT productIdx, (CASE WHEN createdAt is Null then '0'
 FROM Product
 WHERE HOUR(TIMEDIFF(createdAt, CURRENT_TIMESTAMP())) < 72) T on T.productIdx = P.productIdx
 left join (select productIdx, avg(rate) as rate, count(reviewIdx) as reviewNum from Review
+inner join (select orderIdx, productIdx from OrderLog) O on O.orderIdx = Review.orderIdx
             where status = 'N' group by productIdx) R on R.productIdx = P.productIdx
 left join (select productIdx, userIdx from StarredProduct where userIdx = $userIdx and status = 'N')
 Star on P.productIdx = Star.productIdx
@@ -39,6 +40,7 @@ select reviewIdx as reviewIdx, productIdx, U.userIdx as reviewerIdx, userName as
         case when imageUrl is null then 0 else 1 end as isReviewImageAttached, rate
 from Review
 inner join (select userIdx, userName, profileImageUrl from UserInfo) U on U.userIdx = Review.userIdx
+inner join (select productIdx, orderidx from OrderLog) O on O.orderIdx = Review.orderIdx
 order by reviewIdx desc) R on R.productIdx = Product.productIdx
 
 ) AS t
