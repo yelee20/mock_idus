@@ -57,8 +57,7 @@ order by productIdx desc
 function getProductDetail($userIdx,$productIdx)
 {
     $pdo = pdoSqlConnect();
-    $query = "
-select P.productIdx, productName, P.sellerIdx, S.sellerName, S.sellerProfileImageUrl,
+    $query = "select P.productIdx, productName, P.sellerIdx, S.sellerName, S.sellerProfileImageUrl,
        price as originalPrice, discount, format(price*(100-discount)/100,0) as finalPrice, deliveryFee,
        freeDeliveryCondition, startDeliveryAfter, quantity, productInfo, category, productionPolicy, refundPolicy, format(price*(100-discount)/10000,0) as points,
        ifnull(rate,0) as rate, ifnull(reviewNum,0) as reviewNum, ifnull(viewNum,0) as viewNum, ifnull(orderNum,0) as orderNum, ifnull(starredNum,0) as starredNum,
@@ -74,8 +73,10 @@ left join (select productIdx, count(userIdx) as starredNum from StarredProduct
 left join (select productIdx, count(userIdx) as orderNum from OrderLog
             where status = 'N' and (isRefunded = 'N' or isRefunded = 'P')
               and (isChanged = 'N' or isRefunded = 'P') group by productIdx) O on O.productIdx = P.productIdx
-left join (select productIdx, avg(rate) as rate, count(reviewIdx) as reviewNum from Review
-            where status = 'N' group by productIdx) R on R.productIdx = P.productIdx
+left join (select O.productIdx, avg(rate) as rate, count(reviewIdx) as reviewNum from Review
+            inner join (select orderIdx, productIdx from OrderLog where status != 'D')
+                O on O.orderIdx=Review.orderIdx
+            where status = 'N' group by O.productIdx) R on R.productIdx = P.productIdx
 left join (select productIdx, count(userIdx) as viewNum from ViewLog
             group by productIdx) V on V.productIdx = P.productIdx
 where O.productIdx = ?";
