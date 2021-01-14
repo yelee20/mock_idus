@@ -269,6 +269,7 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
+
             $productInfo = getProductInfoByProductIdx($productIdx);
             $price = $productInfo[0]['price'];
             $discount = $productInfo[0]['discount'];
@@ -427,7 +428,7 @@ try {
         /*
         * API No. 4
         * API Name : 구매 취소 API
-        * 마지막 수정 날짜 : 21.01.10
+        * 마지막 수정 날짜 : 21.01.14
         */
         case "deleteOrder":
             http_response_code(200);
@@ -494,18 +495,27 @@ try {
                 break;
             }
 
-            // 수량 복구하기
-            $orderInfo = getOrderInfoByIdx($orderIdx);
-            $productIdx = $orderInfo[0]['productIdx'];
+            $pdo = pdoSqlConnect();
+            $pdo->beginTransaction();
 
-            $productInfo = getProductInfoByProductIdx($productIdx);
-            $quantity = $productInfo[0]['quantity'] + $orderInfo[0]['quantity'];
+            try {
+                // 수량 복구하기
+                $orderInfo = getOrderInfoByIdx($orderIdx);
+                $productIdx = $orderInfo[0]['productIdx'];
 
-            if($productInfo[0]['quantity']!=-1){
-                updateProductQuantity($quantity, $productIdx);
+                $productInfo = getProductInfoByProductIdx($productIdx);
+                $quantity = $productInfo[0]['quantity'] + $orderInfo[0]['quantity'];
+
+                if($productInfo[0]['quantity']!=-1){
+                    updateProductQuantity($quantity, $productIdx);
+                }
+
+                deleteOrder($orderIdx);
+            } catch(\Exception $e) {
+                $pdo->rollBack();
+                return getSQLErrorException($e);
             }
-
-            deleteOrder($orderIdx);
+            
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "구매 취소 성공";
