@@ -485,7 +485,7 @@ try {
                 break;
             }
 
-            logout($userIdx);
+            $jwt = getJWT($userIdx, JWT_SECRET_KEY);
             $res->isSuccess = TRUE;
             $res->code = 1000;
             $res->message = "로그아웃 성공";
@@ -537,44 +537,6 @@ try {
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 
-        /*
-        * API No. 3
-        * API Name : 회원 탈퇴 API
-        * 마지막 수정 날짜 : 21.01.09
-        */
-        case "test":
-            http_response_code(200);
-
-            // S3에 이미지 업로드
-            $s3Client = S3Client::factory(array(
-                'region' => 'ap-northeast-2',
-                'version' => 'latest',
-                'signature' => 'v4',
-                'key'    => 'AKIAIGTSQGIU7JAB54MA',
-                'secret' => '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'
-            ));
-
-            $file_url = 'https://cheolguso.com/wp-content/themes/Cheolguso/img/logo200.png';
-            $s3_path = '/img/logo.png';
-            $file_data = file_get_contents($file_url);
-
-            try{
-            $result = $s3Client->putObject(array(
-                'Bucket' => 'idus',
-                'Key'    => $s3_path,
-                'Body'   => $file_data,
-                'ACL'    => 'public-read'
-            ));
-                echo $result['ObjectURL'] . PHP_EOL;
-            } catch (S3Exception $e) {
-                echo $e->getMessage() . PHP_EOL;
-            }
-
-            $res->isSuccess = TRUE;
-            $res->code = 1000;
-            $res->message = "업로드 성공";
-            echo json_encode($res, JSON_NUMERIC_CHECK);
-            break;
     }
 } catch (\Exception $e) {
     return getSQLErrorException($errorLogs, $e, $req);
