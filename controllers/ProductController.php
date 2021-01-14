@@ -95,14 +95,23 @@ try {
                 echo json_encode($res, JSON_NUMERIC_CHECK);
                 break;
             }
-            $productDetail = getProductDetail($userIdx,$productIdx);
-            $productDetail['productImageUrl'] = getProductImageUrl($productIdx);
-            createViewLog($userIdx,$productIdx);
 
-            $res->result = $productDetail;
+            $pdo = pdoSqlConnect();
+            $pdo->beginTransaction();
+
+            try {
+                $productDetail = getProductDetail($userIdx,$productIdx);
+                $productDetail['productImageUrl'] = getProductImageUrl($productIdx);
+                $res -> result = $productDetail;
+                createViewLog($userIdx,$productIdx);
+            } catch(\Exception $e) {
+                $pdo->rollBack();
+                return getSQLErrorException($e);
+            }
+
             $res->isSuccess = TRUE;
             $res->code = 1000;
-            $res->message = "작품 상세 페이지 조회 성공";
+            $res->message = "작품 상세페이지 조회 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
 
@@ -179,10 +188,10 @@ try {
             break;
 
         /*
-    * API No. 4
-    * API Name : 작품 즐겨찾기 등록 / 해제 API
-    * 마지막 수정 날짜 : 21.01.09
-    */
+        * API No. 4
+        * API Name : 작품 즐겨찾기 등록 / 해제 API
+        * 마지막 수정 날짜 : 21.01.09
+        */
         case "starProduct":
             http_response_code(200);
 
@@ -307,7 +316,6 @@ try {
                 $productIdx = $getLatestReview[$x]['productIdx'];
                 $getLatestReview[$x]['review']=getLatestReviewContent($productIdx);
                 }
-
 
             $res->result = $getLatestReview;
             $res->isSuccess = TRUE;
@@ -501,6 +509,7 @@ try {
             $res->message = "사용자별 추천 작품 목록 조회 성공";
             echo json_encode($res, JSON_NUMERIC_CHECK);
             break;
+
 
     }
 } catch (\Exception $e) {
