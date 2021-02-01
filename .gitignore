@@ -5,6 +5,9 @@
 ### Linux ###
 *~
 
+# Database
+../pdos/DatabasePdo.php
+
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*
 
@@ -145,5 +148,38 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+
+*.pem
+*.ppk
+
+pdos/DatabasePdo.php
+
+/logs/
+
+##### Gradle
+.gradle
+**/build/
+!src/**/build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties
+
+##### Composer
+composer.phar
+/vendor/
+
+# Commit your application's lock file https://getcomposer.org/doc/01-basic-usage.md#commit-your-composer-lock-file-to-version-control
+# You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
+composer.lock
 
 # End of https://www.toptal.com/developers/gitignore/api/phpstorm,windows,linux
