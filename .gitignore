@@ -153,9 +153,10 @@ $RECYCLE.BIN/
 *.pem
 *.ppk
 
-pdos/DatabasePdo.php
+/pdos/DatabasePdo.php
 
-/logs/
+logs
+*.log
 
 ##### Gradle
 .gradle
